@@ -1,0 +1,7 @@
+def caesar_encrypt(text: str, key: int) -> str:
+    return "".join(
+        chr((ord(c) - 65 + key) % 26 + 65) if c.isupper()
+        else chr((ord(c) - 97 + key) % 26 + 97) if c.islower()
+        else c
+        for c in text
+    )
