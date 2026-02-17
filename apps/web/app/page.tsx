@@ -1,4 +1,4 @@
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@workspace/ui/components/button";
 
 export default function Page() {
   return (
@@ -11,5 +11,5 @@ export default function Page() {
         </div>
       </div>
     </div>
-  )
+  );
 }
