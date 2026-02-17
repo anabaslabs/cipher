@@ -4,6 +4,9 @@ from fastapi.responses import PlainTextResponse, JSONResponse
 from app.routers.ceaser_encrypt import caesar_encrypt
 from app.routers.ceaser_decrypt import caesar_decrypt
 from app.routers.ceaser_attack import caesar_attack
+from app.routers.permute_encrypt import encrypt as permute_encrypt
+from app.routers.permute_decrypt import decrypt as permute_decrypt
+from app.routers.permute_attack import frequency_attack
 from app.routers.report import compare
 from app.routers.health import router as health_router
 
@@ -73,3 +76,36 @@ async def ceaser_attack_route(file: UploadFile = File(...)):
             },
         ],
     })
+
+
+# Permutation Encryption
+@router.post("/permute/encrypt", tags=["permute"])
+async def permute_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = (await file.read()).decode("utf-8")
+    encrypted = permute_encrypt(content, key)
+    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
+    return PlainTextResponse(
+        content=encrypted,
+        headers={"Content-Disposition": f'attachment; filename="{name}_encrypted.txt"'},
+    )
+
+
+# Permutation Decryption
+@router.post("/permute/decrypt", tags=["permute"])
+async def permute_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = (await file.read()).decode("utf-8")
+    decrypted = permute_decrypt(content, key)
+    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
+    return PlainTextResponse(
+        content=decrypted,
+        headers={"Content-Disposition": f'attachment; filename="{name}_decrypted.txt"'},
+    )
+
+
+# Permutation Attack
+@router.post("/permute/attack", tags=["permute"])
+async def permute_attack_route(file: UploadFile = File(...)):
+    content = (await file.read()).decode("utf-8")
+    result = frequency_attack(content)
+    return JSONResponse(content=result)
+
