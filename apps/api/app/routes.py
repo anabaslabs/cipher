@@ -1,23 +1,27 @@
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import PlainTextResponse, JSONResponse
 
-from app.routers.ceaser_encrypt import caesar_encrypt
-from app.routers.ceaser_decrypt import caesar_decrypt
-from app.routers.ceaser_attack import caesar_attack
+from app.routers.caesar_encrypt import caesar_encrypt
+from app.routers.caesar_decrypt import caesar_decrypt
+from app.routers.caesar_attack import caesar_attack
 from app.routers.permute_encrypt import encrypt as permute_encrypt
 from app.routers.permute_decrypt import decrypt as permute_decrypt
 from app.routers.permute_attack import frequency_attack
+from app.routers.caesar_key import generate_key as caesar_generate_key
+from app.routers.permute_key import generate_key as permute_generate_key
 from app.routers.report import compare
-from app.routers.health import router as health_router
 
 router = APIRouter()
 
 # Health
-router.include_router(health_router)
+@router.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 
 # Report
 @router.post("/report")
-async def ceaser_report_route(
+async def caesar_report_route(
     original: UploadFile = File(...),
     recovered: UploadFile = File(...),
 ):
@@ -32,9 +36,14 @@ async def ceaser_report_route(
     )
 
 
+# Caesar Key
+@router.get("/caesar/key", tags=["caesar"])
+async def caesar_key_route():
+    return {"key": caesar_generate_key()}
+
 # Caesar Encryption
-@router.post("/ceaser/encrypt", tags=["ceaser"])
-async def ceaser_encrypt_route(file: UploadFile = File(...), key: int = Form(...)):
+@router.post("/caesar/encrypt", tags=["caesar"])
+async def caesar_encrypt_route(file: UploadFile = File(...), key: int = Form(...)):
     content = (await file.read()).decode("utf-8")
     encrypted = caesar_encrypt(content, key)
     name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
@@ -45,8 +54,8 @@ async def ceaser_encrypt_route(file: UploadFile = File(...), key: int = Form(...
 
 
 # Caesar Decryption
-@router.post("/ceaser/decrypt", tags=["ceaser"])
-async def ceaser_decrypt_route(file: UploadFile = File(...), key: int = Form(...)):
+@router.post("/caesar/decrypt", tags=["caesar"])
+async def caesar_decrypt_route(file: UploadFile = File(...), key: int = Form(...)):
     content = (await file.read()).decode("utf-8")
     decrypted = caesar_decrypt(content, key)
     name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
@@ -57,8 +66,8 @@ async def ceaser_decrypt_route(file: UploadFile = File(...), key: int = Form(...
 
 
 # Caesar Attack
-@router.post("/ceaser/attack", tags=["ceaser"])
-async def ceaser_attack_route(file: UploadFile = File(...)):
+@router.post("/caesar/attack", tags=["caesar"])
+async def caesar_attack_route(file: UploadFile = File(...)):
     content = (await file.read()).decode("utf-8")
     result = caesar_attack(content)
 
@@ -76,6 +85,12 @@ async def ceaser_attack_route(file: UploadFile = File(...)):
             },
         ],
     })
+
+
+# Permutation Key
+@router.get("/permute/key", tags=["permute"])
+async def permute_key_route():
+    return {"key": permute_generate_key()}
 
 
 # Permutation Encryption

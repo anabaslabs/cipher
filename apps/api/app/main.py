@@ -9,9 +9,8 @@ from app.routes import router as api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     yield
-    # Shutdown
+
 
 
 app = FastAPI(
@@ -20,7 +19,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow the Next.js frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -29,5 +27,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
 app.include_router(api_router)
