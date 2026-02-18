@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
-    "start": "uvicorn app.main:app --host 0.0.0.0 --port 8000",
-    "lint": "ruff check .",
-    "lint:fix": "ruff check . --fix"
+    "dev": ".venv\\Scripts\\activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "start": "source .venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000",
+    "setup": ".venv\\Scripts\\activate && pip install -r requirements.txt",
+    "lint:fix": "ruff check . --fix",
+    "lint": "ruff check ."
   }
 }

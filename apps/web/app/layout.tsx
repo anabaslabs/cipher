@@ -1,16 +1,18 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Metadata } from "next";
+import { Lexend } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "@workspace/ui/globals.css";
 
-const fontSans = Geist({
+const lexend = Lexend({
+  variable: "--font-lexend",
   subsets: ["latin"],
-  variable: "--font-sans",
+  weight: ["400", "500", "600", "700"],
 });
 
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-});
+export const metadata: Metadata = {
+  title: "CNS Solver",
+  description: "CNS Solver",
+};
 
 export default function RootLayout({
   children,
@@ -19,9 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
-      >
+      <body className={`${lexend.variable} font-lexend antialiased `}>
         <Providers>{children}</Providers>
       </body>
     </html>
