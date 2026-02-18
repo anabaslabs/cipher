@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    APP_NAME: str = "CNS Solver API"
+    APP_NAME: str = "Cipher API"
     APP_VERSION: str = "0.0.1"
     DEBUG: bool = False
 

@@ -30,7 +30,7 @@ export default function Header({
               <IconArrowLeft className="size-5" aria-hidden="true" />
             </Button>
           )}
-          <span>{titleText || "CNS Solver"}</span>
+          <span>{titleText || "Cipher"}</span>
         </h1>
         <AnimatedThemeToggler className="p-1 border rounded-full bg-accent hover:bg-accent/70" />
       </div>

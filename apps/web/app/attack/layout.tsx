@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Frequency Analysis Attack | CNS Solver",
+  title: "Frequency Analysis Attack | Cipher",
 };
 
 export default function RootLayout({

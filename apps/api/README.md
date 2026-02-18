@@ -1,6 +1,6 @@
-# CNS Solver API
+# Cipher (API)
 
-FastAPI backend for the CNS Solver project.
+FastAPI backend for the Cipher project.
 
 ## Setup
 

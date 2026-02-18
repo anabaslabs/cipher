@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Encrypt | CNS Solver",
+  title: "Encrypt | Cipher",
 };
 
 export default function RootLayout({

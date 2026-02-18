@@ -10,8 +10,9 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "CNS Solver",
-  description: "CNS Solver",
+  title: "Cipher",
+  description:
+    "Your all-in-one toolkit for Cipher Project. Encrypt, Decrypt, Run Frequency Analysis Attack and Generate Report with ease.",
 };
 
 export default function RootLayout({
