@@ -5,10 +5,10 @@ def compare(original: str, recovered: str) -> str:
     n = min(len(original), len(recovered))
     matches = sum(original[i] == recovered[i] for i in range(n))
 
-    alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if x.isalpha()]
+    alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if x.isascii() and x.isalpha()]
     alpha_match = sum(x == y for x, y in alpha)
 
-    non_alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if not x.isalpha()]
+    non_alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if not (x.isascii() and x.isalpha())]
     non_alpha_match = sum(x == y for x, y in non_alpha)
 
     word_a, word_b = original.split(), recovered.split()
@@ -35,8 +35,8 @@ def compare(original: str, recovered: str) -> str:
     if line_a and line_b:
         report.append(f"Line accuracy: {line_match / min(len(line_a), len(line_b)) * 100:.2f}%")
 
-    freq_a = Counter(c.lower() for c in original if c.isalpha())
-    freq_b = Counter(c.lower() for c in recovered if c.isalpha())
+    freq_a = Counter(c.lower() for c in original if c.isascii() and c.isalpha())
+    freq_b = Counter(c.lower() for c in recovered if c.isascii() and c.isalpha())
     total_a, total_b = sum(freq_a.values()), sum(freq_b.values())
 
     report.append("\nLetter frequency diff:")

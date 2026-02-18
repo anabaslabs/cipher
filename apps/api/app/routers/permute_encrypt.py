@@ -6,7 +6,7 @@ def encrypt(text: str, key: str) -> str:
     enc = {PLAIN[i]: key[i] for i in range(26)}
     result = ""
     for ch in text:
-        if ch.isalpha():
+        if ch.isascii() and ch.isalpha():
             if ch.isupper():
                 result += enc[ch]
             else:

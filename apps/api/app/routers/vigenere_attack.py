@@ -67,7 +67,7 @@ def decrypt(cipher: str, key: str) -> str:
     key_len = len(key)
     key_index = 0
     for ch in cipher:
-        if ch.isalpha():
+        if ch.isascii() and ch.isalpha():
             shift = key_shifts[key_index % key_len]
             if ch.isupper():
                 result.append(chr((ord(ch) - 65 - shift) % 26 + 65))
@@ -80,7 +80,7 @@ def decrypt(cipher: str, key: str) -> str:
 
 
 def vigenere_attack(ciphertext: str) -> dict:
-    cipher_alpha = "".join(c for c in ciphertext.upper() if c.isalpha())
+    cipher_alpha = "".join(c for c in ciphertext.upper() if c.isascii() and c.isalpha())
     if not cipher_alpha:
         return {"guessed_key": "", "guessed_plaintext": ""}
 
@@ -92,7 +92,7 @@ def vigenere_attack(ciphertext: str) -> dict:
     for length in top_lengths:
         candidate_key = frequency_attack_chi_square(cipher_alpha, length)
         candidate_text = decrypt(ciphertext, candidate_key)
-        english_score = score_plaintext("".join(c for c in candidate_text if c.isalpha()))
+        english_score = score_plaintext("".join(c for c in candidate_text if c.isascii() and c.isalpha()))
 
         if english_score > best_score:
             best_score = english_score

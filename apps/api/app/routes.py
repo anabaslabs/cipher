@@ -22,28 +22,13 @@ from app.routers.vigenere_attack import vigenere_attack
 router = APIRouter()
 
 
-# ── Helper ──
+# Helper
 async def read_file(file: UploadFile) -> str:
-    """Read uploaded file with encoding fallback and smart-quote normalization."""
     raw = await file.read()
-
     try:
-        text = raw.decode("utf-8")
+        return raw.decode("utf-8")
     except UnicodeDecodeError:
-        text = raw.decode("cp1252", errors="replace")
-
-    text = (
-        text
-        .replace("\u201c", '"')
-        .replace("\u201d", '"')
-        .replace("\u2018", "'")
-        .replace("\u2019", "'")
-        .replace("\u2013", "-")
-        .replace("\u2014", "-")
-        .replace("\u2026", "...")
-    )
-    return text
-
+        return raw.decode("cp1252", errors="replace")
 
 def get_name(file: UploadFile) -> str:
     return file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename

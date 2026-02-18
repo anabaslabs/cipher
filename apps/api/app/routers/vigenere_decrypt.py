@@ -4,7 +4,7 @@ def decrypt(cipher: str, key: str) -> str:
     key_index = 0
 
     for ch in cipher:
-        if ch.isalpha():
+        if ch.isascii() and ch.isalpha():
             shift = ord(key[key_index % len(key)]) - ord("A")
 
             if ch.isupper():

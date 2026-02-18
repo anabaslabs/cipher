@@ -6,7 +6,7 @@ def decrypt(text: str, key: str) -> str:
     dec = {key[i]: PLAIN[i] for i in range(26)}
     result = ""
     for ch in text:
-        if ch.isalpha():
+        if ch.isascii() and ch.isalpha():
             if ch.isupper():
                 result += dec[ch]
             else:

@@ -41,7 +41,7 @@ for wl in CW.values():
 
 
 def precompute(ct):
-    alpha_upper = [c.upper() for c in ct if c.isalpha()]
+    alpha_upper = [c.upper() for c in ct if c.isascii() and c.isalpha()]
     total = len(alpha_upper)
     unigrams = Counter(alpha_upper)
     bigrams = Counter(alpha_upper[i] + alpha_upper[i + 1] for i in range(total - 1))
@@ -81,8 +81,8 @@ def score(km, total, unigrams, bigrams, trigrams, word_counts):
 
 def apply_key(ct, km):
     return "".join(
-        km.get(c.upper(), "?") if c.isupper()
-        else km.get(c.upper(), "?").lower() if c.isalpha()
+        km.get(c.upper(), "?") if c.isascii() and c.isupper()
+        else km.get(c.upper(), "?").lower() if c.isascii() and c.isalpha()
         else c
         for c in ct
     )

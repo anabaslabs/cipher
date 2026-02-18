@@ -12,15 +12,15 @@ FREQ = {
 
 def caesar_decrypt(text: str, key: int) -> str:
     return "".join(
-        chr((ord(c) - 65 - key) % 26 + 65) if c.isupper()
-        else chr((ord(c) - 97 - key) % 26 + 97) if c.islower()
+        chr((ord(c) - 65 - key) % 26 + 65) if c.isascii() and c.isupper()
+        else chr((ord(c) - 97 - key) % 26 + 97) if c.isascii() and c.islower()
         else c
         for c in text
     )
 
 
 def chi_squared(text: str) -> float:
-    letters = [c.lower() for c in text if c.isalpha()]
+    letters = [c.lower() for c in text if c.isascii() and c.isalpha()]
     n = len(letters)
     if not n:
         return float("inf")
