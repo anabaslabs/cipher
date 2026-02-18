@@ -40,11 +40,6 @@ def caesar_attack(text: str) -> dict:
     best_key, best_score, plaintext = results[0]
 
     return {
-        "best_key": best_key,
-        "best_score": round(best_score, 2),
-        "plaintext": plaintext,
-        "top_5": [
-            {"key": k, "score": round(s, 2), "preview": d[:80]}
-            for k, s, d in results[:5]
-        ],
+        "guessed_key": best_key,
+        "guessed_plaintext": plaintext,
     }

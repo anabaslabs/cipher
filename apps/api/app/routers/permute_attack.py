@@ -186,10 +186,10 @@ def frequency_attack(ct: str, restarts: int = 10) -> dict:
     km = hint_seed(ct, km)
     plaintext = apply_key(ct, km)
 
-    key_str = "\n".join(f"{c} -> {km[c]}" for c in sorted(km))
+    inv = {plain: cipher for cipher, plain in km.items()}
+    key_str = "".join(inv.get(c, "?") for c in ALPHA)
 
     return {
-        "guessed_plaintext": plaintext,
         "guessed_key": key_str,
-        "best_score": round(best_score, 2),
+        "guessed_plaintext": plaintext,
     }

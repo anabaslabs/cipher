@@ -79,6 +79,15 @@ def decrypt(cipher: str, key: str) -> str:
     return "".join(result)
 
 
+def reduce_key(key: str) -> str:
+    for length in range(1, len(key) + 1):
+        if len(key) % length == 0:
+            pattern = key[:length]
+            if pattern * (len(key) // length) == key:
+                return pattern
+    return key
+
+
 def vigenere_attack(ciphertext: str) -> dict:
     cipher_alpha = "".join(c for c in ciphertext.upper() if c.isascii() and c.isalpha())
     if not cipher_alpha:
@@ -100,6 +109,6 @@ def vigenere_attack(ciphertext: str) -> dict:
             best_text = candidate_text
 
     return {
-        "guessed_key": best_key,
+        "guessed_key": reduce_key(best_key),
         "guessed_plaintext": best_text,
     }

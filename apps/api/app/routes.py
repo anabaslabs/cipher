@@ -69,7 +69,7 @@ async def caesar_encrypt_route(file: UploadFile = File(...), key: int = Form(...
     encrypted = caesar_encrypt(content, key)
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_CC.txt"'},
     )
 
 # Caesar Decryption
@@ -87,20 +87,7 @@ async def caesar_decrypt_route(file: UploadFile = File(...), key: int = Form(...
 async def caesar_attack_route(file: UploadFile = File(...)):
     content = await read_file(file)
     result = caesar_attack(content)
-    name = get_name(file)
-
-    return JSONResponse(content={
-        "files": [
-            {
-                "filename": f"{name}_attacked.txt",
-                "content": result["plaintext"],
-            },
-            {
-                "filename": f"{name}_key_{result['best_key']}.txt",
-                "content": str(result["best_key"]),
-            },
-        ],
-    })
+    return JSONResponse(content=result)
 
 
 # Permutation Key
@@ -115,7 +102,7 @@ async def permute_encrypt_route(file: UploadFile = File(...), key: str = Form(..
     encrypted = permute_encrypt(content, key)
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_PC.txt"'},
     )
 
 # Permutation Decryption
@@ -148,7 +135,7 @@ async def vigenere_encrypt_route(file: UploadFile = File(...), key: str = Form(.
     encrypted = vigenere_encrypt(content, key)
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_VC.txt"'},
     )
 
 # Vigenere Decryption
