@@ -16,11 +16,13 @@ export type State = "idle" | "processing" | "done" | "error";
 
 export default function FileSelector({
   className,
+  titleText,
   state,
   setFile,
   onClearFilesReady,
 }: {
   className?: string;
+  titleText?: string;
   state: State;
   setFile: (file: File | null) => void;
   onClearFilesReady?: (clearFiles: () => void) => void;
@@ -83,7 +85,9 @@ export default function FileSelector({
           >
             <IconFilePlus className="size-6 opacity-60" />
           </div>
-          <p className="mb-1.5 text-lg font-medium">Add File</p>
+          <p className="mb-1.5 text-lg font-medium">
+            {titleText || "Add File"}
+          </p>
           <p className="mb-2 text-muted-foreground">
             Drag & Drop / Click to browse file
           </p>
