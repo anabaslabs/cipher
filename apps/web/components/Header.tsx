@@ -1,17 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@workspace/ui/components/button";
+import { HyperText } from "@workspace/ui/components/hyper-text";
 import { AnimatedThemeToggler } from "@workspace/ui/components/animated-theme-toggler";
 import { IconArrowLeft } from "@tabler/icons-react";
 
 export default function Header({
-  backButton = false,
   titleText,
+  backButton = false,
+  animation = false,
 }: {
-  backButton?: boolean;
   titleText?: string;
+  backButton?: boolean;
+  animation?: boolean;
 }) {
   const router = useRouter();
 
@@ -30,7 +32,11 @@ export default function Header({
               <IconArrowLeft className="size-5" aria-hidden="true" />
             </Button>
           )}
-          <span>{titleText || "Cipher"}</span>
+          {animation ? (
+            <HyperText as="span">{titleText || "CIPHER"}</HyperText>
+          ) : (
+            <span>{titleText || "Cipher"}</span>
+          )}
         </h1>
         <AnimatedThemeToggler className="p-1 border rounded-full bg-accent hover:bg-accent/70" />
       </div>

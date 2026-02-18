@@ -40,7 +40,7 @@ export default function Home() {
 
   return (
     <>
-      <Header />
+      <Header animation />
       <main className="flex flex-col justify-center items-center p-6 min-h-[calc(100vh-8rem)] w-full">
         <div className="text-center mt-2 mb-14 max-w-6xl">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
