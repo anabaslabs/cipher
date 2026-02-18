@@ -21,6 +21,34 @@ from app.routers.vigenere_attack import vigenere_attack
 
 router = APIRouter()
 
+
+# ── Helper ──
+async def read_file(file: UploadFile) -> str:
+    """Read uploaded file with encoding fallback and smart-quote normalization."""
+    raw = await file.read()
+
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        text = raw.decode("cp1252", errors="replace")
+
+    text = (
+        text
+        .replace("\u201c", '"')
+        .replace("\u201d", '"')
+        .replace("\u2018", "'")
+        .replace("\u2019", "'")
+        .replace("\u2013", "-")
+        .replace("\u2014", "-")
+        .replace("\u2026", "...")
+    )
+    return text
+
+
+def get_name(file: UploadFile) -> str:
+    return file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
+
+
 # Health
 @router.get("/health")
 async def health_check():
@@ -33,11 +61,11 @@ async def caesar_report_route(
     original: UploadFile = File(...),
     recovered: UploadFile = File(...),
 ):
-    original_text = (await original.read()).decode("utf-8")
-    recovered_text = (await recovered.read()).decode("utf-8")
+    original_text = await read_file(original)
+    recovered_text = await read_file(recovered)
     report = compare(original_text, recovered_text)
 
-    name = original.filename.rsplit(".", 1)[0] if "." in original.filename else original.filename
+    name = get_name(original)
     return PlainTextResponse(
         content=report,
         headers={"Content-Disposition": f'attachment; filename="{name}_comparison_report.txt"'},
@@ -52,32 +80,29 @@ async def caesar_key_route():
 # Caesar Encryption
 @router.post("/caesar/encrypt", tags=["caesar"])
 async def caesar_encrypt_route(file: UploadFile = File(...), key: int = Form(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     encrypted = caesar_encrypt(content, key)
-    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{name}_encrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted.txt"'},
     )
 
 # Caesar Decryption
 @router.post("/caesar/decrypt", tags=["caesar"])
 async def caesar_decrypt_route(file: UploadFile = File(...), key: int = Form(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     decrypted = caesar_decrypt(content, key)
-    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
     return PlainTextResponse(
         content=decrypted,
-        headers={"Content-Disposition": f'attachment; filename="{name}_decrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'},
     )
 
 # Caesar Attack
 @router.post("/caesar/attack", tags=["caesar"])
 async def caesar_attack_route(file: UploadFile = File(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     result = caesar_attack(content)
-
-    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
+    name = get_name(file)
 
     return JSONResponse(content={
         "files": [
@@ -101,29 +126,27 @@ async def permute_key_route():
 # Permutation Encryption
 @router.post("/permute/encrypt", tags=["permute"])
 async def permute_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     encrypted = permute_encrypt(content, key)
-    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{name}_encrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted.txt"'},
     )
 
 # Permutation Decryption
 @router.post("/permute/decrypt", tags=["permute"])
 async def permute_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     decrypted = permute_decrypt(content, key)
-    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
     return PlainTextResponse(
         content=decrypted,
-        headers={"Content-Disposition": f'attachment; filename="{name}_decrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'},
     )
 
 # Permutation Attack
 @router.post("/permute/attack", tags=["permute"])
 async def permute_attack_route(file: UploadFile = File(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     result = frequency_attack(content)
     return JSONResponse(content=result)
 
@@ -136,28 +159,26 @@ async def vigenere_key_route():
 # Vigenere Encryption
 @router.post("/vigenere/encrypt", tags=["vigenere"])
 async def vigenere_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     encrypted = vigenere_encrypt(content, key)
-    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{name}_encrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted.txt"'},
     )
 
 # Vigenere Decryption
 @router.post("/vigenere/decrypt", tags=["vigenere"])
 async def vigenere_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     decrypted = vigenere_decrypt(content, key)
-    name = file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
     return PlainTextResponse(
         content=decrypted,
-        headers={"Content-Disposition": f'attachment; filename="{name}_decrypted.txt"'},
+        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'},
     )
 
 # Vigenere Attack
 @router.post("/vigenere/attack", tags=["vigenere"])
 async def vigenere_attack_route(file: UploadFile = File(...)):
-    content = (await file.read()).decode("utf-8")
+    content = await read_file(file)
     result = vigenere_attack(content)
     return JSONResponse(content=result)
