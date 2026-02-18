@@ -9,11 +9,9 @@ import { IconArrowLeft } from "@tabler/icons-react";
 export default function Header({
   backButton = false,
   titleText,
-  titleLink,
 }: {
   backButton?: boolean;
   titleText?: string;
-  titleLink?: string;
 }) {
   const router = useRouter();
 
@@ -32,9 +30,9 @@ export default function Header({
               <IconArrowLeft className="size-5" aria-hidden="true" />
             </Button>
           )}
-          <Link href={titleLink || "#"}>{titleText || "CNS Solver"}</Link>
+          <span>{titleText || "CNS Solver"}</span>
         </h1>
-        <AnimatedThemeToggler />
+        <AnimatedThemeToggler className="p-1 border rounded-full bg-accent hover:bg-accent/70" />
       </div>
     </header>
   );

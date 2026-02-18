@@ -160,15 +160,15 @@ export default function Encrypt() {
   return (
     <>
       <Header backButton titleText="Encrypt" />
-      <main className="flex flex-col justify-center items-center gap-6 sm:gap-15 p-4 sm:p-6 w-full">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 sm:p-10 w-full max-w-6xl border rounded-lg">
+      <main className="flex flex-col justify-center items-center gap-6 md:gap-10 p-4 md:p-6 w-full">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
           <FileSelector
             setFile={handleFileChange}
             state={state}
             className="w-full"
             onClearFilesReady={handleSetClear}
           />
-          <div className="flex flex-col justify-center items-center gap-6 sm:gap-10 w-full">
+          <div className="flex flex-col justify-center items-center gap-6 md:gap-10 w-full">
             <Field>
               <FieldLabel htmlFor="input-button-group">
                 Encryption Method
@@ -279,8 +279,8 @@ export default function Encrypt() {
         </div>
 
         {state === "done" && (
-          <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-10 w-full max-w-6xl border rounded-lg">
-            <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground w-full">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
+            <div className="flex flex-col justify-center items-start gap-6 text-sm text-muted-foreground w-full">
               {encryptedFile && (
                 <div className="flex items-center gap-1">
                   <IconKey className="size-4 inline-block" aria-hidden="true" />
@@ -321,7 +321,7 @@ export default function Encrypt() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col justify-center items-center gap-4 w-full">
+            <div className="flex flex-col justify-center items-center gap-8 w-full">
               <Button
                 className="w-full"
                 variant="outline"
@@ -332,7 +332,7 @@ export default function Encrypt() {
               </Button>
 
               <Button
-                className="text-red-400 hover:text-red-500 w-full"
+                className="text-red-500 hover:text-red-400 w-full"
                 variant="outline"
                 onClick={handleClear}
               >
@@ -344,7 +344,7 @@ export default function Encrypt() {
         )}
 
         {state === "error" && (
-          <div className="flex flex-col justify-between items-center gap-4 p-10 w-full max-w-6xl border rounded-lg">
+          <div className="flex flex-col justify-between items-center gap-4 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
             <p>
               An error occurred during encryption. Please check your inputs and
               try again.
