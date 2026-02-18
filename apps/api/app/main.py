@@ -12,7 +12,6 @@ async def lifespan(app: FastAPI):
     yield
 
 
-
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
@@ -25,6 +24,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
 )
 
 app.include_router(api_router)

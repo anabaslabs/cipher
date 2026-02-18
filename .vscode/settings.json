@@ -38,5 +38,8 @@
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
-  "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css"
+  "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
 }

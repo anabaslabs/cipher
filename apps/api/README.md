@@ -7,21 +7,42 @@ FastAPI backend for the CNS Solver project.
 ```bash
 cd apps/api
 python -m venv .venv
+```
+
+```bash
 .venv\Scripts\activate   # Windows
-pip install -e ".[dev]"
+source .venv/bin/activate  # macOS/Linux
+```
+
+```bash
+pip install -r requirements.txt
 ```
 
 ## Development
 
 ```bash
-uvicorn app.main:app --reload
+turbo dev
 ```
 
 Or from the monorepo root:
 
 ```bash
-turbo dev --filter=api
+turbo dev -F api
 ```
+
+## Production
+
+```bash
+turbo start
+```
+
+Or from the monorepo root:
+
+```bash
+turbo start -F api
+```
+
+## Usage
 
 The API runs at [http://localhost:8000](http://localhost:8000).  
 Interactive docs at [http://localhost:8000/docs](http://localhost:8000/docs).
