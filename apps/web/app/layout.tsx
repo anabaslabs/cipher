@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { Metadata } from "next";
 import { Lexend } from "next/font/google";
 import { Providers } from "@/components/providers";
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${lexend.variable} font-lexend antialiased `}>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
