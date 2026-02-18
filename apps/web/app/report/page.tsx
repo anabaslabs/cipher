@@ -175,7 +175,7 @@ export default function Report() {
             />
           </div>
 
-          <div className="grid grid-cols-4 gap-2 w-full mt-2">
+          <div className="grid grid-cols-5 gap-2 w-full mt-2">
             <Button
               className="col-span-3 w-full"
               disabled={state !== "idle" || !originalFile || !attackedFile}
@@ -205,12 +205,12 @@ export default function Report() {
               ) : (
                 <>
                   <IconDeviceAnalytics className="size-4" aria-hidden="true" />
-                  Compare & Generate Report
+                  Generate Report
                 </>
               )}
             </Button>
             <Button
-              className="col-span-1 w-full"
+              className="col-span-2 w-full"
               variant="destructive"
               disabled={
                 state === "processing" ||

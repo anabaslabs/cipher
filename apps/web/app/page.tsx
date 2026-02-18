@@ -16,25 +16,25 @@ export default function Home() {
       title: "Encrypt",
       href: "/encrypt",
       description:
-        "Upload a .txt file and apply your secret key securely. Only A-Z letters are transformed while formatting stays unchanged.",
+        "Secure your text using a custom key. Keeps formatting fully intact.",
     },
     {
       title: "Decrypt",
       href: "/decrypt",
       description:
-        "Upload your encrypted file with the original key. Restore the text back to readable plain English instantly.",
+        "Unlock encrypted text with your key. Recover the original message.",
     },
     {
       title: "Frequency Analysis Attack",
       href: "/attack",
       description:
-        "Upload ciphertext to analyze character frequency patterns. Compare with English distribution to uncover possible letter mappings.",
+        "Analyze ciphertext patterns automatically. Reveal likely letter substitutions.",
     },
     {
       title: "Generate Report",
       href: "/report",
       description:
-        "Compile frequency findings and discovered mappings automatically. Export a clean, structured report ready for submission.",
+        "Compile insights into a clean summary. Export a ready-to-submit report.",
     },
   ];
 
@@ -56,7 +56,7 @@ export default function Home() {
             >
               <CardHeader>
                 <CardTitle>{feature.title}</CardTitle>
-                <CardDescription className="text-sm">
+                <CardDescription className="mt-1 text-sm">
                   {feature.description}
                 </CardDescription>
               </CardHeader>

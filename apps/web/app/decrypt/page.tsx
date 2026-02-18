@@ -204,7 +204,7 @@ export default function Decrypt() {
               </ButtonGroup>
             </Field>
 
-            <Field className="grid grid-cols-4 mt-2">
+            <Field className="grid grid-cols-5 mt-2">
               <Button
                 className="col-span-3 w-full"
                 disabled={
@@ -244,7 +244,7 @@ export default function Decrypt() {
                 )}
               </Button>
               <Button
-                className="col-span-1 w-full"
+                className="col-span-2 w-full"
                 variant="destructive"
                 disabled={
                   state === "processing" ||

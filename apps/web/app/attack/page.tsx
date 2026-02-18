@@ -160,7 +160,7 @@ export default function Attack() {
               </Select>
             </Field>
 
-            <Field className="grid grid-cols-4 mt-2">
+            <Field className="grid grid-cols-5 mt-2">
               <Button
                 className="col-span-3 w-full"
                 disabled={state !== "idle" || !file || !cipherMethod}
@@ -195,7 +195,7 @@ export default function Attack() {
                 )}
               </Button>
               <Button
-                className="col-span-1 w-full"
+                className="col-span-2 w-full"
                 variant="destructive"
                 disabled={
                   state === "processing" ||

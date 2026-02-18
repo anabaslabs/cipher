@@ -6,7 +6,7 @@ FastAPI backend for the Cipher project.
 
 ```bash
 cd apps/api
-python -m venv .venv
+py -m venv .venv
 ```
 
 ```bash
