@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import PlainTextResponse, JSONResponse
 
@@ -119,7 +120,8 @@ async def permute_decrypt_route(file: UploadFile = File(...), key: str = Form(..
 @router.post("/permute/attack", tags=["permute"])
 async def permute_attack_route(file: UploadFile = File(...)):
     content = await read_file(file)
-    result = frequency_attack(content)
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, frequency_attack, content)
     return JSONResponse(content=result)
 
 
@@ -152,5 +154,6 @@ async def vigenere_decrypt_route(file: UploadFile = File(...), key: str = Form(.
 @router.post("/vigenere/attack", tags=["vigenere"])
 async def vigenere_attack_route(file: UploadFile = File(...)):
     content = await read_file(file)
-    result = vigenere_attack(content)
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, vigenere_attack, content)
     return JSONResponse(content=result)

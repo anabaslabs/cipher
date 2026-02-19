@@ -182,7 +182,7 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8):
 def frequency_attack(ct: str, restarts: int = 10) -> dict:
     precomputed_data = precompute(ct)
     km = hint_seed(ct, init_key(ct))
-    km, best_score = hill_climb(ct, km, precomputed_data, restarts=restarts)
+    km, best_score = hill_climb(ct, km, precomputed_data, iters=10000, restarts=restarts)
     km = hint_seed(ct, km)
     plaintext = apply_key(ct, km)
 
