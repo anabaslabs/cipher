@@ -32,7 +32,8 @@ async def read_file(file: UploadFile) -> str:
         return raw.decode("cp1252", errors="replace")
 
 def get_name(file: UploadFile) -> str:
-    return file.filename.rsplit(".", 1)[0] if "." in file.filename else file.filename
+    name = file.filename or "file"
+    return name.rsplit(".", 1)[0] if "." in name else name
 
 
 # Health
@@ -120,8 +121,7 @@ async def permute_decrypt_route(file: UploadFile = File(...), key: str = Form(..
 @router.post("/permute/attack", tags=["permute"])
 async def permute_attack_route(file: UploadFile = File(...)):
     content = await read_file(file)
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, frequency_attack, content)
+    result = await asyncio.get_running_loop().run_in_executor(None, frequency_attack, content)
     return JSONResponse(content=result)
 
 
@@ -154,6 +154,5 @@ async def vigenere_decrypt_route(file: UploadFile = File(...), key: str = Form(.
 @router.post("/vigenere/attack", tags=["vigenere"])
 async def vigenere_attack_route(file: UploadFile = File(...)):
     content = await read_file(file)
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, vigenere_attack, content)
+    result = await asyncio.get_running_loop().run_in_executor(None, vigenere_attack, content)
     return JSONResponse(content=result)
