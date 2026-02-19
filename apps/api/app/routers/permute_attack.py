@@ -139,14 +139,67 @@ def hint_seed(ct, km):
     return km
 
 
+def _build_letter_index(unigrams, bigrams, trigrams, word_counts):
+    bg_idx = {c: [] for c in ALPHA}
+    for bg, cnt in bigrams.items():
+        bg_idx[bg[0]].append((bg, cnt))
+        if bg[1] != bg[0]:
+            bg_idx[bg[1]].append((bg, cnt))
+
+    tg_idx = {c: [] for c in ALPHA}
+    for tg, cnt in trigrams.items():
+        seen = set()
+        for ch in tg:
+            if ch not in seen:
+                tg_idx[ch].append((tg, cnt))
+                seen.add(ch)
+
+    wd_idx = {c: [] for c in ALPHA}
+    for cw, cnt in word_counts.items():
+        wlen = len(cw)
+        if wlen in CW_SETS:
+            seen = set()
+            for ch in cw:
+                if ch not in seen:
+                    wd_idx[ch].append((cw, wlen, cnt))
+                    seen.add(ch)
+
+    return bg_idx, tg_idx, wd_idx
+
+
+def _contrib_uni(km, letter, unigrams, total):
+    plain = km.get(letter, "?")
+    observed = unigrams.get(letter, 0)
+    expected = EF.get(plain, 0.01) / 100 * total
+    return -((observed - expected) ** 2 / expected)
+
+
+def _contrib_bg(km, bg):
+    p = km.get(bg[0], "?") + km.get(bg[1], "?")
+    return p in BG
+
+
+def _contrib_tg(km, tg):
+    p = km.get(tg[0], "?") + km.get(tg[1], "?") + km.get(tg[2], "?")
+    return p in TG
+
+
+def _contrib_wd(km, cw, wlen):
+    w = "".join(km.get(c, "?") for c in cw)
+    return w in CW_SETS[wlen]
+
+
 def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8):
     total, unigrams, bigrams, trigrams, word_counts = precomputed_data
+    bg_idx, tg_idx, wd_idx = _build_letter_index(unigrams, bigrams, trigrams, word_counts)
+
     best = km.copy()
     bs = score(best, total, unigrams, bigrams, trigrams, word_counts)
 
+    ks = list(ALPHA)
+
     for _ in range(restarts):
         cur = best.copy()
-        ks = list(ALPHA)
 
         for _ in range(3):
             a, b = random.sample(ks, 2)
@@ -163,11 +216,72 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8):
             for i in range(26):
                 for j in range(i + 1, 26):
                     k1, k2 = ks[i], ks[j]
-                    cur[k1], cur[k2] = cur[k2], cur[k1]
-                    ns = score(cur, total, unigrams, bigrams, trigrams, word_counts)
 
-                    if ns > cs:
-                        cs = ns
+                    old_uni = _contrib_uni(cur, k1, unigrams, total) + _contrib_uni(cur, k2, unigrams, total)
+
+                    affected_bgs = set()
+                    old_bg = 0.0
+                    for bg, cnt in bg_idx[k1]:
+                        affected_bgs.add(bg)
+                        if _contrib_bg(cur, bg):
+                            old_bg += 2 * cnt
+                    for bg, cnt in bg_idx[k2]:
+                        if bg not in affected_bgs:
+                            affected_bgs.add(bg)
+                            if _contrib_bg(cur, bg):
+                                old_bg += 2 * cnt
+
+                    affected_tgs = set()
+                    old_tg = 0.0
+                    for tg, cnt in tg_idx[k1]:
+                        affected_tgs.add(tg)
+                        if _contrib_tg(cur, tg):
+                            old_tg += 3 * cnt
+                    for tg, cnt in tg_idx[k2]:
+                        if tg not in affected_tgs:
+                            affected_tgs.add(tg)
+                            if _contrib_tg(cur, tg):
+                                old_tg += 3 * cnt
+
+                    affected_wds = set()
+                    old_wd = 0.0
+                    for cw, wlen, cnt in wd_idx[k1]:
+                        affected_wds.add(cw)
+                        if _contrib_wd(cur, cw, wlen):
+                            old_wd += 4 * (wlen ** 1.5) * cnt
+                    for cw, wlen, cnt in wd_idx[k2]:
+                        if cw not in affected_wds:
+                            affected_wds.add(cw)
+                            if _contrib_wd(cur, cw, wlen):
+                                old_wd += 4 * (wlen ** 1.5) * cnt
+
+                    cur[k1], cur[k2] = cur[k2], cur[k1]
+
+                    new_uni = _contrib_uni(cur, k1, unigrams, total) + _contrib_uni(cur, k2, unigrams, total)
+
+                    new_bg = 0.0
+                    for bg in affected_bgs:
+                        cnt = bigrams[bg]
+                        if _contrib_bg(cur, bg):
+                            new_bg += 2 * cnt
+
+                    new_tg = 0.0
+                    for tg in affected_tgs:
+                        cnt = trigrams[tg]
+                        if _contrib_tg(cur, tg):
+                            new_tg += 3 * cnt
+
+                    new_wd = 0.0
+                    for cw in affected_wds:
+                        cnt = word_counts[cw]
+                        wlen = len(cw)
+                        if _contrib_wd(cur, cw, wlen):
+                            new_wd += 4 * (wlen ** 1.5) * cnt
+
+                    delta = (new_uni - old_uni) + (new_bg - old_bg) + (new_tg - old_tg) + (new_wd - old_wd)
+
+                    if delta > 0:
+                        cs += delta
                         improved = True
                     else:
                         cur[k1], cur[k2] = cur[k2], cur[k1]
