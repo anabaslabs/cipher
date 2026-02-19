@@ -168,6 +168,7 @@ export default function Decrypt() {
                     <SelectItem value="caesar">Caesar Cipher</SelectItem>
                     <SelectItem value="permute">Permutation Cipher</SelectItem>
                     <SelectItem value="vigenere">Vigenère Cipher</SelectItem>
+                    <SelectItem value="playfair">Playfair Cipher (6x6)</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

@@ -20,6 +20,10 @@ from app.routers.vigenere_encrypt import encrypt as vigenere_encrypt
 from app.routers.vigenere_decrypt import decrypt as vigenere_decrypt
 from app.routers.vigenere_attack import vigenere_attack
 
+from app.routers.playfair_key import generate_key as playfair_generate_key
+from app.routers.playfair_encrypt import encrypt as playfair_encrypt
+from app.routers.playfair_decrypt import decrypt as playfair_decrypt
+
 
 router = APIRouter()
 
@@ -198,3 +202,35 @@ async def vigenere_attack_route(file: UploadFile = File(...)):
         None, vigenere_attack, content
     )
     return JSONResponse(content=result)
+
+
+# Playfair Key
+@router.get("/playfair/key", tags=["playfair"])
+async def playfair_key_route():
+    return {"key": playfair_generate_key()}
+
+
+# Playfair Encryption
+@router.post("/playfair/encrypt", tags=["playfair"])
+async def playfair_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    encrypted = playfair_encrypt(content, key)
+    return PlainTextResponse(
+        content=encrypted,
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_PFC.txt"'
+        },
+    )
+
+
+# Playfair Decryption
+@router.post("/playfair/decrypt", tags=["playfair"])
+async def playfair_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    decrypted = playfair_decrypt(content, key)
+    return PlainTextResponse(
+        content=decrypted,
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
+        },
+    )
