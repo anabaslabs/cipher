@@ -11,6 +11,8 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: list[str] = ["*"]
 
+    ENV: str = "development"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
