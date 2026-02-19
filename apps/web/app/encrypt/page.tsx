@@ -24,12 +24,12 @@ import {
   IconCopy,
   IconDice5,
   IconDownload,
-  IconExclamationCircle,
   IconFileInfo,
   IconKey,
   IconLoader,
   IconLock,
   IconReload,
+  IconX,
 } from "@tabler/icons-react";
 
 export default function Encrypt() {
@@ -244,15 +244,12 @@ export default function Encrypt() {
                 ) : state === "done" ? (
                   <>
                     <IconCheck className="size-4" aria-hidden="true" />
-                    Encryption Successfully
+                    Encrypted
                   </>
                 ) : state === "error" ? (
                   <>
-                    <IconExclamationCircle
-                      className="size-4"
-                      aria-hidden="true"
-                    />
-                    Encryption Failed
+                    <IconX className="size-4" aria-hidden="true" />
+                    Failed
                   </>
                 ) : (
                   <>
@@ -281,24 +278,32 @@ export default function Encrypt() {
 
         {state === "done" && (
           <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <div className="flex flex-col justify-center items-start gap-6 text-sm text-muted-foreground w-full">
+            <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground w-full">
               {encryptedFile && (
-                <div className="flex items-center gap-1">
-                  <IconKey className="size-4 inline-block" aria-hidden="true" />
-                  Encryption Key: <b>{formState.encryptionKey}</b>
-                  <Button
-                    size="icon-lg"
-                    variant="ghost"
-                    className="size-4"
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        formState.encryptionKey || ""
-                      )
-                    }
-                    aria-label="Copy key to clipboard"
-                  >
-                    <IconCopy className="size-3" aria-hidden="true" />
-                  </Button>
+                <div className="flex flex-row flex-wrap justify-start items-center gap-1">
+                  <span className="flex justify-center items-center gap-1">
+                    <IconKey
+                      className="size-4 inline-block"
+                      aria-hidden="true"
+                    />
+                    Encryption Key:
+                  </span>
+                  <span className="flex justify-center items-center gap-1">
+                    {formState.encryptionKey}
+                    <Button
+                      size="icon-lg"
+                      variant="ghost"
+                      className="size-4"
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          formState.encryptionKey || ""
+                        )
+                      }
+                      aria-label="Copy key to clipboard"
+                    >
+                      <IconCopy className="size-4" aria-hidden="true" />
+                    </Button>
+                  </span>
                 </div>
               )}
 
@@ -322,14 +327,14 @@ export default function Encrypt() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col justify-center items-center gap-8 w-full">
+            <div className="flex flex-col justify-center items-center gap-6 w-full">
               <Button
                 className="w-full"
                 variant="outline"
                 onClick={handleDownload}
               >
                 <IconDownload className="size-4" aria-hidden="true" />
-                File name: {encryptedFile?.filename || "N/A"}
+                {encryptedFile?.filename || "N/A"}
               </Button>
 
               <Button
@@ -346,7 +351,7 @@ export default function Encrypt() {
 
         {state === "error" && (
           <div className="flex flex-col justify-between items-center gap-4 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <p>
+            <p className="text-red-400 dark:text-red-800">
               An error occurred during encryption. Please check your inputs and
               try again.
             </p>

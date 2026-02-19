@@ -24,20 +24,20 @@ import {
   IconClock,
   IconCopy,
   IconDownload,
-  IconExclamationCircle,
   IconFileInfo,
   IconKey,
   IconLoader,
   IconLockOpen2,
   IconReload,
+  IconX,
 } from "@tabler/icons-react";
 
 export default function Decrypt() {
   const [state, setState] = useState<State>("idle");
   const [formState, setFormState] = useState({
     file: null as File | null,
-    encryptionMethod: null as string | null,
-    encryptionKey: null as string | null,
+    decryptionMethod: null as string | null,
+    decryptionKey: null as string | null,
   });
   const [decryptedFile, setDecryptedFile] = useState<{
     url: string;
@@ -69,8 +69,8 @@ export default function Decrypt() {
     setState("idle");
     setFormState({
       file: null,
-      encryptionMethod: null,
-      encryptionKey: null,
+      decryptionMethod: null,
+      decryptionKey: null,
     });
     setDecryptedFile(null);
     setTimeTaken(null);
@@ -93,8 +93,8 @@ export default function Decrypt() {
     if (formState.file) {
       formData.append("file", formState.file);
     }
-    if (formState.encryptionKey) {
-      formData.append("key", formState.encryptionKey);
+    if (formState.decryptionKey) {
+      formData.append("key", formState.decryptionKey);
     }
 
     setState("processing");
@@ -103,7 +103,7 @@ export default function Decrypt() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await axios.post(
-        `${apiUrl}/${formState.encryptionMethod}/decrypt`,
+        `${apiUrl}/${formState.decryptionMethod}/decrypt`,
         formData,
         {
           headers: {
@@ -154,14 +154,14 @@ export default function Decrypt() {
                 Decryption Method
               </FieldLabel>
               <Select
-                value={formState.encryptionMethod || ""}
+                value={formState.decryptionMethod || ""}
                 onValueChange={(value) =>
-                  setFormState((prev) => ({ ...prev, encryptionMethod: value }))
+                  setFormState((prev) => ({ ...prev, decryptionMethod: value }))
                 }
                 disabled={state !== "idle"}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select encryption method" />
+                  <SelectValue placeholder="Select decryption method" />
                 </SelectTrigger>
                 <SelectContent position="popper">
                   <SelectGroup>
@@ -182,11 +182,11 @@ export default function Decrypt() {
                 <Input
                   id="input-button-group"
                   placeholder="Enter Key"
-                  value={formState.encryptionKey || ""}
+                  value={formState.decryptionKey || ""}
                   onChange={(e) =>
                     setFormState((prev) => ({
                       ...prev,
-                      encryptionKey: e.target.value,
+                      decryptionKey: e.target.value,
                     }))
                   }
                   disabled={state !== "idle"}
@@ -196,7 +196,7 @@ export default function Decrypt() {
                   disabled={state !== "idle"}
                   onClick={async () => {
                     const text = await navigator.clipboard.readText();
-                    setFormState((prev) => ({ ...prev, encryptionKey: text }));
+                    setFormState((prev) => ({ ...prev, decryptionKey: text }));
                   }}
                 >
                   <IconClipboard className="size-4" aria-hidden="true" />
@@ -211,8 +211,8 @@ export default function Decrypt() {
                 disabled={
                   state !== "idle" ||
                   !formState.file ||
-                  !formState.encryptionMethod ||
-                  !formState.encryptionKey
+                  !formState.decryptionMethod ||
+                  !formState.decryptionKey
                 }
                 onClick={handleDecrypt}
               >
@@ -227,15 +227,12 @@ export default function Decrypt() {
                 ) : state === "done" ? (
                   <>
                     <IconCheck className="size-4" aria-hidden="true" />
-                    Decryption Successful
+                    Decrypted
                   </>
                 ) : state === "error" ? (
                   <>
-                    <IconExclamationCircle
-                      className="size-4"
-                      aria-hidden="true"
-                    />
-                    Decryption Failed
+                    <IconX className="size-4" aria-hidden="true" />
+                    Failed
                   </>
                 ) : (
                   <>
@@ -251,8 +248,8 @@ export default function Decrypt() {
                   state === "processing" ||
                   state === "done" ||
                   (formState.file === null &&
-                    !formState.encryptionMethod &&
-                    !formState.encryptionKey)
+                    !formState.decryptionMethod &&
+                    !formState.decryptionKey)
                 }
                 onClick={handleClear}
               >
@@ -265,24 +262,32 @@ export default function Decrypt() {
 
         {state === "done" && (
           <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <div className="flex flex-col justify-center items-start gap-6 text-sm text-muted-foreground w-full">
+            <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground w-full">
               {decryptedFile && (
-                <div className="flex items-center gap-1">
-                  <IconKey className="size-4 inline-block" aria-hidden="true" />
-                  Decryption Key: <b>{formState.encryptionKey}</b>
-                  <Button
-                    size="icon-lg"
-                    variant="ghost"
-                    className="size-4"
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        formState.encryptionKey || ""
-                      )
-                    }
-                    aria-label="Copy key to clipboard"
-                  >
-                    <IconCopy className="size-3" aria-hidden="true" />
-                  </Button>
+                <div className="flex flex-row flex-wrap justify-start items-center gap-1">
+                  <span className="flex justify-center items-center gap-1">
+                    <IconKey
+                      className="size-4 inline-block"
+                      aria-hidden="true"
+                    />
+                    Decryption Key:
+                  </span>
+                  <span className="flex justify-center items-center gap-1">
+                    {formState.decryptionKey}
+                    <Button
+                      size="icon-lg"
+                      variant="ghost"
+                      className="size-4"
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          formState.decryptionKey || ""
+                        )
+                      }
+                      aria-label="Copy key to clipboard"
+                    >
+                      <IconCopy className="size-4" aria-hidden="true" />
+                    </Button>
+                  </span>
                 </div>
               )}
 
@@ -306,14 +311,14 @@ export default function Decrypt() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col justify-center items-center gap-8 w-full">
+            <div className="flex flex-col justify-center items-center gap-6 w-full">
               <Button
                 className="w-full"
                 variant="outline"
                 onClick={handleDownload}
               >
                 <IconDownload className="size-4" aria-hidden="true" />
-                File name: {decryptedFile?.filename || "N/A"}
+                {decryptedFile?.filename || "N/A"}
               </Button>
 
               <Button
@@ -330,7 +335,7 @@ export default function Decrypt() {
 
         {state === "error" && (
           <div className="flex flex-col justify-between items-center gap-4 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <p>
+            <p className="text-red-400 dark:text-red-800">
               An error occurred during decryption. Please check your inputs and
               try again.
             </p>

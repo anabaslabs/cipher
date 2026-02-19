@@ -20,18 +20,19 @@ import {
   IconCheck,
   IconClock,
   IconDownload,
-  IconExclamationCircle,
   IconFileInfo,
   IconKey,
   IconLoader,
   IconReload,
   IconSkull,
+  IconX,
 } from "@tabler/icons-react";
 
 type DownloadFile = {
   url: string;
   filename: string;
   size: number;
+  label: string;
 };
 
 type AttackMeta = {
@@ -94,6 +95,7 @@ export default function Attack() {
           url: window.URL.createObjectURL(blob),
           filename: `${baseName}_attacked.txt`,
           size: blob.size,
+          label: "Attacked",
         });
       }
       if (data.guessed_key !== undefined && data.guessed_key !== null) {
@@ -104,6 +106,7 @@ export default function Attack() {
           url: window.URL.createObjectURL(blob),
           filename: `${baseName}_key.txt`,
           size: blob.size,
+          label: "Key",
         });
       }
 
@@ -177,20 +180,17 @@ export default function Attack() {
                 ) : state === "done" ? (
                   <>
                     <IconCheck className="size-4" aria-hidden="true" />
-                    Attack Successful
+                    Attacked
                   </>
                 ) : state === "error" ? (
                   <>
-                    <IconExclamationCircle
-                      className="size-4"
-                      aria-hidden="true"
-                    />
-                    Attack Failed
+                    <IconX className="size-4" aria-hidden="true" />
+                    Failed
                   </>
                 ) : (
                   <>
                     <IconSkull className="size-4" aria-hidden="true" />
-                    Run Attack
+                    Attack
                   </>
                 )}
               </Button>
@@ -220,7 +220,7 @@ export default function Attack() {
                     className="size-4 inline-block"
                     aria-hidden="true"
                   />
-                  File Size: {formatBytes(dlFile.size)}
+                  {dlFile.label} File Size: {formatBytes(dlFile.size)}
                 </div>
               ))}
 
@@ -268,7 +268,7 @@ export default function Attack() {
 
         {state === "error" && (
           <div className="flex flex-col justify-between items-center gap-4 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <p>
+            <p className="text-red-400 dark:text-red-800">
               An error occurred during the attack. Please check your file and
               cipher method and try again.
             </p>

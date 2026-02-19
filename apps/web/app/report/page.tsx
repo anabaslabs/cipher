@@ -11,7 +11,6 @@ import {
   IconCheck,
   IconClock,
   IconDownload,
-  IconExclamationCircle,
   IconFileInfo,
   IconLoader,
   IconReload,
@@ -22,6 +21,7 @@ import {
   IconRuler2,
   IconPresentationAnalytics,
   IconDeviceAnalytics,
+  IconX,
 } from "@tabler/icons-react";
 
 interface ReportStats {
@@ -187,20 +187,17 @@ export default function Report() {
                     className="size-4 animate-spin"
                     aria-hidden="true"
                   />
-                  Generating Report...
+                  Generating...
                 </>
               ) : state === "done" ? (
                 <>
                   <IconCheck className="size-4" aria-hidden="true" />
-                  Report Generated
+                  Generated
                 </>
               ) : state === "error" ? (
                 <>
-                  <IconExclamationCircle
-                    className="size-4"
-                    aria-hidden="true"
-                  />
-                  Generation Failed
+                  <IconX className="size-4" aria-hidden="true" />
+                  Failed
                 </>
               ) : (
                 <>
@@ -290,7 +287,7 @@ export default function Report() {
               </div>
             </div>
 
-            <div className="flex flex-col justify-center items-center gap-6">
+            <div className="flex flex-col justify-center items-center gap-6 md:gap-8">
               <Button
                 className="w-full"
                 variant="outline"
@@ -306,7 +303,7 @@ export default function Report() {
                 onClick={handleClear}
               >
                 <IconReload className="size-4" aria-hidden="true" />
-                Another File
+                Another Report
               </Button>
             </div>
           </div>
@@ -314,7 +311,7 @@ export default function Report() {
 
         {state === "error" && (
           <div className="flex flex-col justify-between items-center gap-4 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <p>
+            <p className="text-red-400 dark:text-red-800">
               An error occurred while generating the report. Please check your
               files and try again.
             </p>
