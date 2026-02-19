@@ -1,6 +1,7 @@
+import os
 import asyncio
 from fastapi import APIRouter, UploadFile, File, Form
-from fastapi.responses import PlainTextResponse, JSONResponse
+from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
 
 from app.routers.report import compare
 
@@ -31,9 +32,23 @@ async def read_file(file: UploadFile) -> str:
     except UnicodeDecodeError:
         return raw.decode("cp1252", errors="replace")
 
+
 def get_name(file: UploadFile) -> str:
     name = file.filename or "file"
     return name.rsplit(".", 1)[0] if "." in name else name
+
+
+# Root
+@router.get("/")
+async def root():
+    return {"status": "ok", "message": "Cipher API"}
+
+
+# Favicon
+@router.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    path = os.path.join(os.path.dirname(__file__), "static", "favicon.ico")
+    return FileResponse(path)
 
 
 # Health
@@ -55,7 +70,9 @@ async def caesar_report_route(
     name = get_name(original)
     return PlainTextResponse(
         content=report,
-        headers={"Content-Disposition": f'attachment; filename="{name}_comparison_report.txt"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{name}_comparison_report.txt"'
+        },
     )
 
 
@@ -64,6 +81,7 @@ async def caesar_report_route(
 async def caesar_key_route():
     return {"key": caesar_generate_key()}
 
+
 # Caesar Encryption
 @router.post("/caesar/encrypt", tags=["caesar"])
 async def caesar_encrypt_route(file: UploadFile = File(...), key: int = Form(...)):
@@ -71,8 +89,11 @@ async def caesar_encrypt_route(file: UploadFile = File(...), key: int = Form(...
     encrypted = caesar_encrypt(content, key)
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_CC.txt"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_CC.txt"'
+        },
     )
+
 
 # Caesar Decryption
 @router.post("/caesar/decrypt", tags=["caesar"])
@@ -81,8 +102,11 @@ async def caesar_decrypt_route(file: UploadFile = File(...), key: int = Form(...
     decrypted = caesar_decrypt(content, key)
     return PlainTextResponse(
         content=decrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
+        },
     )
+
 
 # Caesar Attack
 @router.post("/caesar/attack", tags=["caesar"])
@@ -97,6 +121,7 @@ async def caesar_attack_route(file: UploadFile = File(...)):
 async def permute_key_route():
     return {"key": permute_generate_key()}
 
+
 # Permutation Encryption
 @router.post("/permute/encrypt", tags=["permute"])
 async def permute_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
@@ -104,8 +129,11 @@ async def permute_encrypt_route(file: UploadFile = File(...), key: str = Form(..
     encrypted = permute_encrypt(content, key)
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_PC.txt"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_PC.txt"'
+        },
     )
+
 
 # Permutation Decryption
 @router.post("/permute/decrypt", tags=["permute"])
@@ -114,14 +142,19 @@ async def permute_decrypt_route(file: UploadFile = File(...), key: str = Form(..
     decrypted = permute_decrypt(content, key)
     return PlainTextResponse(
         content=decrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
+        },
     )
+
 
 # Permutation Attack
 @router.post("/permute/attack", tags=["permute"])
 async def permute_attack_route(file: UploadFile = File(...)):
     content = await read_file(file)
-    result = await asyncio.get_running_loop().run_in_executor(None, frequency_attack, content)
+    result = await asyncio.get_running_loop().run_in_executor(
+        None, frequency_attack, content
+    )
     return JSONResponse(content=result)
 
 
@@ -130,6 +163,7 @@ async def permute_attack_route(file: UploadFile = File(...)):
 async def vigenere_key_route():
     return {"key": vigenere_generate_key()}
 
+
 # Vigenere Encryption
 @router.post("/vigenere/encrypt", tags=["vigenere"])
 async def vigenere_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
@@ -137,8 +171,11 @@ async def vigenere_encrypt_route(file: UploadFile = File(...), key: str = Form(.
     encrypted = vigenere_encrypt(content, key)
     return PlainTextResponse(
         content=encrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_VC.txt"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_VC.txt"'
+        },
     )
+
 
 # Vigenere Decryption
 @router.post("/vigenere/decrypt", tags=["vigenere"])
@@ -147,12 +184,17 @@ async def vigenere_decrypt_route(file: UploadFile = File(...), key: str = Form(.
     decrypted = vigenere_decrypt(content, key)
     return PlainTextResponse(
         content=decrypted,
-        headers={"Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
+        },
     )
+
 
 # Vigenere Attack
 @router.post("/vigenere/attack", tags=["vigenere"])
 async def vigenere_attack_route(file: UploadFile = File(...)):
     content = await read_file(file)
-    result = await asyncio.get_running_loop().run_in_executor(None, vigenere_attack, content)
+    result = await asyncio.get_running_loop().run_in_executor(
+        None, vigenere_attack, content
+    )
     return JSONResponse(content=result)
