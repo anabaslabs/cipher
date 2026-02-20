@@ -1,7 +1,4 @@
-<h1 align="center">
-  <img src="apps/web/public/logo.png" alt="Cipher Logo" width="38" style="vertical-align: middle;" />
-  <b>Cipher</b>
-</h1>
+<h1 align="center"><b>Cipher</b></h1>
 
 <p align="center">
   <a href="https://github.com/anabaslabs/cipher"><b>Cipher</b></a> is your all-in-one toolkit for classic cryptography. Built with a <a href="https://nextjs.org"><b>Next.js</b></a> frontend and a <a href="https://fastapi.tiangolo.com"><b>FastAPI</b></a> backend, it lets you <b>Encrypt</b>, <b>Decrypt</b>, run <b>Frequency Analysis Attacks</b>, and generate detailed <b>Reports</b> — all from a clean & modern interface.

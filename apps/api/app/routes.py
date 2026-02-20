@@ -25,6 +25,11 @@ from app.routers.playfair_key import generate_key as playfair_generate_key
 from app.routers.playfair_encrypt import encrypt as playfair_encrypt
 from app.routers.playfair_decrypt import decrypt as playfair_decrypt
 
+from app.routers.hill_key import generate_key as hill_generate_key
+from app.routers.hill_encrypt import encrypt as hill_encrypt
+from app.routers.hill_decrypt import decrypt as hill_decrypt
+from app.routers.hill_attack import hill_attack
+
 
 router = APIRouter()
 
@@ -76,7 +81,7 @@ async def caesar_report_route(
     return PlainTextResponse(
         content=report,
         headers={
-            "Content-Disposition": f'attachment; filename="{name}_comparison_report.txt"'
+            "Content-Disposition": f'attachment; filename="{name}_report.txt"'
         },
     )
 
@@ -241,3 +246,47 @@ async def playfair_decrypt_route(file: UploadFile = File(...), key: str = Form(.
             "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
         },
     )
+
+
+# Hill Key
+@router.get("/hill/key", tags=["hill"])
+async def hill_key_route():
+    return hill_generate_key()
+
+
+# Hill Encryption
+@router.post("/hill/encrypt", tags=["hill"])
+async def hill_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    key_data = json.loads(key)
+    encrypted = hill_encrypt(content, key_data)
+    return PlainTextResponse(
+        content=encrypted,
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_HC.txt"'
+        },
+    )
+
+
+# Hill Decryption
+@router.post("/hill/decrypt", tags=["hill"])
+async def hill_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    key_data = json.loads(key)
+    decrypted = hill_decrypt(content, key_data)
+    return PlainTextResponse(
+        content=decrypted,
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
+        },
+    )
+
+
+# Hill Attack
+@router.post("/hill/attack", tags=["hill"])
+async def hill_attack_route(file: UploadFile = File(...)):
+    content = await read_file(file)
+    result = await asyncio.get_running_loop().run_in_executor(
+        None, hill_attack, content
+    )
+    return JSONResponse(content=result)
