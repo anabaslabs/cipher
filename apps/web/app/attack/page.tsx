@@ -165,7 +165,7 @@ export default function Attack() {
 
             <Field className="grid grid-cols-5 mt-2">
               <Button
-                className="col-span-3 w-full"
+                className="col-span-3 w-full leading-none"
                 disabled={state !== "idle" || !file || !cipherMethod}
                 onClick={handleAttack}
               >
@@ -195,7 +195,7 @@ export default function Attack() {
                 )}
               </Button>
               <Button
-                className="col-span-2 w-full"
+                className="col-span-2 w-full leading-none"
                 variant="destructive"
                 disabled={
                   state === "processing" ||
@@ -215,7 +215,10 @@ export default function Attack() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
             <div className="flex flex-col justify-center items-start gap-6 text-sm text-muted-foreground w-full">
               {downloadFiles.map((dlFile) => (
-                <div key={dlFile.filename} className="flex items-center gap-1">
+                <div
+                  key={dlFile.filename}
+                  className="flex items-center gap-1 leading-none"
+                >
                   <IconFileInfo
                     className="size-4 inline-block"
                     aria-hidden="true"
@@ -225,7 +228,7 @@ export default function Attack() {
               ))}
 
               {timeTaken !== null && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 leading-none">
                   <IconClock
                     className="size-4 inline-block"
                     aria-hidden="true"
@@ -235,7 +238,7 @@ export default function Attack() {
               )}
 
               {attackMeta?.best_score !== undefined && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 leading-none">
                   <IconKey className="size-4 inline-block" aria-hidden="true" />
                   Best Score: {attackMeta.best_score}
                 </div>
@@ -245,7 +248,7 @@ export default function Attack() {
               {downloadFiles.map((dlFile) => (
                 <Button
                   key={dlFile.filename}
-                  className="w-full"
+                  className="w-full leading-none"
                   variant="outline"
                   onClick={() => handleDownload(dlFile)}
                 >
@@ -255,7 +258,7 @@ export default function Attack() {
               ))}
 
               <Button
-                className="text-red-500 hover:text-red-400 w-full"
+                className="text-red-500 hover:text-red-400 w-full leading-none"
                 variant="outline"
                 onClick={handleClear}
               >

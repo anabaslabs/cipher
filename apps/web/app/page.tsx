@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/Header";
+import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,
@@ -41,11 +42,26 @@ export default function Home() {
   return (
     <>
       <Header animation />
-      <main className="flex flex-col justify-center items-center gap-8 p-6 min-h-[calc(100vh-8rem)] w-full">
-        <div className="text-center mb-8 max-w-6xl">
+      <main className="flex flex-col justify-evenly items-center gap-8 p-6 min-h-[calc(100vh-9rem)] w-full">
+        <div className="flex flex-col justify-center items-center gap-4 text-center max-w-6xl">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
             Your all-in-one toolkit for Cipher Project
           </h1>
+          <h2 className="flex justify-center items-center gap-2 font-semibold">
+            <span>Supported Ciphers:</span>
+            <Badge variant="secondary" className="text-sm border-gray-500">
+              Caesar
+            </Badge>
+            <Badge variant="secondary" className="text-sm border-gray-500">
+              Permutation
+            </Badge>
+            <Badge variant="secondary" className="text-sm border-gray-500">
+              Vigenère
+            </Badge>
+            <Badge variant="secondary" className="text-sm border-gray-500">
+              Playfair (6x6)
+            </Badge>
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-6xl">

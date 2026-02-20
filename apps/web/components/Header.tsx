@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@workspace/ui/components/button";
 import { HyperText } from "@workspace/ui/components/hyper-text";
@@ -20,8 +21,8 @@ export default function Header({
   return (
     <header className="flex justify-center items-center px-4 sm:px-6 py-4 w-full">
       <div className="flex justify-between items-center w-full max-w-6xl">
-        <h1 className="flex justify-center items-center gap-2 text-2xl font-bold">
-          {backButton && (
+        <h1 className="flex justify-center items-center gap-2 text-2xl font-bold leading-none">
+          {backButton ? (
             <Button
               size="icon"
               variant="secondary"
@@ -31,6 +32,8 @@ export default function Header({
             >
               <IconArrowLeft className="size-5" aria-hidden="true" />
             </Button>
+          ) : (
+            <Image src="/logo.png" alt="Cipher Logo" width={32} height={32} />
           )}
           {animation ? (
             <HyperText as="span">{titleText || "CIPHER"}</HyperText>

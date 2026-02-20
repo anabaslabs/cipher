@@ -177,7 +177,7 @@ export default function Report() {
 
           <div className="grid grid-cols-5 gap-2 w-full mt-2">
             <Button
-              className="col-span-3 w-full"
+              className="col-span-3 w-full leading-none"
               disabled={state !== "idle" || !originalFile || !attackedFile}
               onClick={handleGenerateReport}
             >
@@ -207,7 +207,7 @@ export default function Report() {
               )}
             </Button>
             <Button
-              className="col-span-2 w-full"
+              className="col-span-2 w-full leading-none"
               variant="destructive"
               disabled={
                 state === "processing" ||
@@ -226,7 +226,7 @@ export default function Report() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
             <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground">
               {reportFile && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 leading-none">
                   <IconFileInfo
                     className="size-4 inline-block"
                     aria-hidden="true"
@@ -235,7 +235,7 @@ export default function Report() {
                 </div>
               )}
               {timeTaken !== null && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 leading-none">
                   <IconClock
                     className="size-4 inline-block"
                     aria-hidden="true"
@@ -243,14 +243,14 @@ export default function Report() {
                   Time Taken: <b>{timeTaken.toFixed(2)}s</b>
                 </div>
               )}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 leading-none">
                 <IconPresentationAnalytics
                   className="size-4 inline-block"
                   aria-hidden="true"
                 />
                 Verdict: <b>{reportStats.verdict}</b>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 leading-none">
                 <IconRuler2
                   className="size-4 inline-block"
                   aria-hidden="true"
@@ -260,25 +260,25 @@ export default function Report() {
             </div>
 
             <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 leading-none">
                 <IconPercentage
                   className="size-4 inline-block"
                   aria-hidden="true"
                 />
                 Overall Accuracy: <b>{reportStats.overallAccuracy}</b>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 leading-none">
                 <IconLineHeight
                   className="size-4 inline-block"
                   aria-hidden="true"
                 />
                 Line Accuracy: <b>{reportStats.lineAccuracy}</b>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 leading-none">
                 <IconAbc className="size-4 inline-block" aria-hidden="true" />
                 Word Accuracy: <b>{reportStats.wordAccuracy}</b>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 leading-none">
                 <IconAlphabetLatin
                   className="size-4 inline-block"
                   aria-hidden="true"
@@ -289,7 +289,7 @@ export default function Report() {
 
             <div className="flex flex-col justify-center items-center gap-6 md:gap-8">
               <Button
-                className="w-full"
+                className="w-full leading-none"
                 variant="outline"
                 onClick={handleDownload}
               >
@@ -298,7 +298,7 @@ export default function Report() {
               </Button>
 
               <Button
-                className="text-red-500 hover:text-red-400 w-full"
+                className="text-red-500 hover:text-red-400 w-full leading-none"
                 variant="outline"
                 onClick={handleClear}
               >

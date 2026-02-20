@@ -45,6 +45,7 @@ export default function Decrypt() {
     size: number;
   } | null>(null);
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
+  const [keyCopied, setKeyCopied] = useState(false);
   const clearFilesRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -168,7 +169,9 @@ export default function Decrypt() {
                     <SelectItem value="caesar">Caesar Cipher</SelectItem>
                     <SelectItem value="permute">Permutation Cipher</SelectItem>
                     <SelectItem value="vigenere">Vigenère Cipher</SelectItem>
-                    <SelectItem value="playfair">Playfair Cipher (6x6)</SelectItem>
+                    <SelectItem value="playfair">
+                      Playfair Cipher (6x6)
+                    </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -193,6 +196,7 @@ export default function Decrypt() {
                 />
                 <Button
                   variant="outline"
+                  className="leading-none"
                   disabled={state !== "idle"}
                   onClick={async () => {
                     const text = await navigator.clipboard.readText();
@@ -207,7 +211,7 @@ export default function Decrypt() {
 
             <Field className="grid grid-cols-5 mt-2">
               <Button
-                className="col-span-3 w-full"
+                className="col-span-3 w-full leading-none"
                 disabled={
                   state !== "idle" ||
                   !formState.file ||
@@ -242,7 +246,7 @@ export default function Decrypt() {
                 )}
               </Button>
               <Button
-                className="col-span-2 w-full"
+                className="col-span-2 w-full leading-none"
                 variant="destructive"
                 disabled={
                   state === "processing" ||
@@ -265,34 +269,40 @@ export default function Decrypt() {
             <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground w-full">
               {decryptedFile && (
                 <div className="flex flex-row flex-wrap justify-start items-center gap-1">
-                  <span className="flex justify-center items-center gap-1">
+                  <span className="flex justify-center items-center gap-1 leading-none">
                     <IconKey
                       className="size-4 inline-block"
                       aria-hidden="true"
                     />
                     Decryption Key:
                   </span>
-                  <span className="flex justify-center items-center gap-1">
+                  <span className="flex justify-center items-center gap-1.5 leading-none">
                     {formState.decryptionKey}
                     <Button
                       size="icon-lg"
                       variant="ghost"
                       className="size-4"
-                      onClick={() =>
+                      onClick={() => {
                         navigator.clipboard.writeText(
                           formState.decryptionKey || ""
-                        )
-                      }
+                        );
+                        setKeyCopied(true);
+                        setTimeout(() => setKeyCopied(false), 2000);
+                      }}
                       aria-label="Copy key to clipboard"
                     >
-                      <IconCopy className="size-4" aria-hidden="true" />
+                      {keyCopied ? (
+                        <IconCheck className="size-4" aria-hidden="true" />
+                      ) : (
+                        <IconCopy className="size-4" aria-hidden="true" />
+                      )}
                     </Button>
                   </span>
                 </div>
               )}
 
               {timeTaken !== null && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 leading-none">
                   <IconClock
                     className="size-4 inline-block"
                     aria-hidden="true"
@@ -302,7 +312,7 @@ export default function Decrypt() {
               )}
 
               {decryptedFile && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 leading-none">
                   <IconFileInfo
                     className="size-4 inline-block"
                     aria-hidden="true"
@@ -313,7 +323,7 @@ export default function Decrypt() {
             </div>
             <div className="flex flex-col justify-center items-center gap-6 w-full">
               <Button
-                className="w-full"
+                className="w-full leading-none"
                 variant="outline"
                 onClick={handleDownload}
               >
@@ -322,7 +332,7 @@ export default function Decrypt() {
               </Button>
 
               <Button
-                className="text-red-500 hover:text-red-400 w-full"
+                className="text-red-500 hover:text-red-400 w-full leading-none"
                 variant="outline"
                 onClick={handleClear}
               >
