@@ -1,59 +1,95 @@
-import re
+import string
+
+CHARS = string.ascii_uppercase + string.digits
 
 
-def generate_6x6_matrix(keyword):
-    keyword = re.sub(r'[^A-Z0-9]', '', keyword.upper())
-    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    matrix_chars = []
-    used = set()
-    for char in keyword + alphabet:
-        if char not in used:
-            matrix_chars.append(char)
-            used.add(char)
-    return matrix_chars
+def generate_key_table(key: str) -> list[list[str]]:
+    key = key.upper()
+    seen = []
+    for ch in key:
+        if ch in CHARS and ch not in seen:
+            seen.append(ch)
+    for ch in CHARS:
+        if ch not in seen:
+            seen.append(ch)
+    return [seen[i * 6:(i + 1) * 6] for i in range(6)]
 
 
-def encrypt(text: str, keyword: str) -> str:
-    matrix = generate_6x6_matrix(keyword)
+def get_position(table, ch):
+    for r, row in enumerate(table):
+        if ch in row:
+            return r, row.index(ch)
+    raise ValueError(f"Character '{ch}' not in table.")
 
-    valid_chars = []
-    valid_indices = []
-    for i, char in enumerate(text):
-        if char.isalnum() and char.upper() in matrix:
-            valid_chars.append(char.upper())
-            valid_indices.append(i)
 
-    encrypted_chars = []
-    for i in range(0, len(valid_chars), 2):
-        a = valid_chars[i]
-        r1, c1 = divmod(matrix.index(a), 6)
-
-        if i + 1 < len(valid_chars):
-            b = valid_chars[i+1]
-            r2, c2 = divmod(matrix.index(b), 6)
-
-            if r1 == r2 and c1 == c2:
-                e_a = matrix[((r1+1)%6)*6 + (c1+1)%6]
-                e_b = matrix[((r2+1)%6)*6 + (c2+1)%6]
-            elif r1 == r2:
-                e_a = matrix[r1*6 + (c1+1)%6]
-                e_b = matrix[r2*6 + (c2+1)%6]
-            elif c1 == c2:
-                e_a = matrix[((r1+1)%6)*6 + c1]
-                e_b = matrix[((r2+1)%6)*6 + c2]
+def prepare_alpha(alpha_str: str) -> tuple[list[str], list[int]]:
+    filtered = list(alpha_str)
+    digrams = []
+    filler_positions = []
+    i = 0
+    while i < len(filtered):
+        a = filtered[i]
+        if i + 1 < len(filtered):
+            b = filtered[i + 1]
+            if a == b:
+                filler = '9' if a == 'X' else 'X'
+                digrams.append(a)
+                filler_positions.append(len(digrams))
+                digrams.append(filler)
+                i += 1
             else:
-                e_a = matrix[r1*6 + c2]
-                e_b = matrix[r2*6 + c1]
-
-            encrypted_chars.extend([e_a, e_b])
+                digrams.extend([a, b])
+                i += 2
         else:
-            e_a = matrix[((r1+1)%6)*6 + (c1+1)%6]
-            encrypted_chars.append(e_a)
+            filler = '9' if a == 'X' else 'X'
+            digrams.append(a)
+            filler_positions.append(len(digrams))
+            digrams.append(filler)
+            i += 1
+    return digrams, filler_positions
 
-    result = list(text)
-    for i, orig_idx in enumerate(valid_indices):
-        orig_char = text[orig_idx]
-        enc_char = encrypted_chars[i]
-        result[orig_idx] = enc_char.lower() if orig_char.islower() else enc_char
 
-    return "".join(result)
+def encrypt_digrams(table, digrams: list[str]) -> str:
+    result = []
+    for i in range(0, len(digrams), 2):
+        a, b = digrams[i], digrams[i + 1]
+        ra, ca = get_position(table, a)
+        rb, cb = get_position(table, b)
+        if ra == rb:
+            result.append(table[ra][(ca + 1) % 6])
+            result.append(table[rb][(cb + 1) % 6])
+        elif ca == cb:
+            result.append(table[(ra + 1) % 6][ca])
+            result.append(table[(rb + 1) % 6][cb])
+        else:
+            result.append(table[ra][cb])
+            result.append(table[rb][ca])
+    return ''.join(result)
+
+
+def encrypt(plaintext: str, key: str) -> tuple[str, dict]:
+    table = generate_key_table(key)
+    upper = plaintext.upper()
+
+    non_alpha = {}
+    alpha_chars = []
+    alpha_positions = []
+
+    for i, ch in enumerate(upper):
+        if ch in CHARS:
+            alpha_chars.append(ch)
+            alpha_positions.append(i)
+        else:
+            non_alpha[str(i)] = plaintext[i]
+
+    digrams, filler_positions = prepare_alpha(''.join(alpha_chars))
+    encrypted_body = encrypt_digrams(table, digrams)
+
+    meta = {
+        "non_alpha": non_alpha,
+        "alpha_positions": alpha_positions,
+        "filler_positions": filler_positions,
+        "original_length": len(plaintext)
+    }
+
+    return encrypted_body, meta

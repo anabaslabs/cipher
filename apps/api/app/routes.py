@@ -1,4 +1,5 @@
 import os
+import json
 import asyncio
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
@@ -214,9 +215,10 @@ async def playfair_key_route():
 @router.post("/playfair/encrypt", tags=["playfair"])
 async def playfair_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
-    encrypted = playfair_encrypt(content, key)
+    encrypted_body, meta = playfair_encrypt(content, key)
+    payload = json.dumps(meta) + "\n---PLAYFAIR_META---\n" + encrypted_body
     return PlainTextResponse(
-        content=encrypted,
+        content=payload,
         headers={
             "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_PFC.txt"'
         },
@@ -227,7 +229,12 @@ async def playfair_encrypt_route(file: UploadFile = File(...), key: str = Form(.
 @router.post("/playfair/decrypt", tags=["playfair"])
 async def playfair_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
-    decrypted = playfair_decrypt(content, key)
+    if "---PLAYFAIR_META---" in content:
+        meta_str, ciphertext = content.split("\n---PLAYFAIR_META---\n", 1)
+        meta = json.loads(meta_str)
+    else:
+        return JSONResponse(content={"error": "Missing meta data in encrypted file"}, status_code=400)
+    decrypted = playfair_decrypt(ciphertext, key, meta)
     return PlainTextResponse(
         content=decrypted,
         headers={
