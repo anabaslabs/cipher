@@ -42,7 +42,7 @@ export default function FileSelector({
     multiple: false,
     accept: "text/plain",
     maxFiles: 1,
-    maxSize: 5 * 1024 * 1024, // 5 MB
+    maxSize: 10 * 1024 * 1024, // 10 MB
   });
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export default function FileSelector({
           <div className="flex flex-wrap justify-center gap-1 text-sm text-muted-foreground/70">
             <span>Only Text (.txt) file</span>
             <span> • </span>
-            <span>Size upto 5MB</span>
+            <span>Size upto 10MB</span>
           </div>
         </div>
       </div>

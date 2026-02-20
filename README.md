@@ -1,4 +1,7 @@
-<h1 align="center"><b>Cipher</b></h1>
+<h1 align="center">
+  <img src="apps/web/public/logo.png" alt="Cipher Logo" width="38" style="vertical-align: middle;" />
+  <b>Cipher</b>
+</h1>
 
 <p align="center">
   <a href="https://github.com/anabaslabs/cipher"><b>Cipher</b></a> is your all-in-one toolkit for classic cryptography. Built with a <a href="https://nextjs.org"><b>Next.js</b></a> frontend and a <a href="https://fastapi.tiangolo.com"><b>FastAPI</b></a> backend, it lets you <b>Encrypt</b>, <b>Decrypt</b>, run <b>Frequency Analysis Attacks</b>, and generate detailed <b>Reports</b> — all from a clean & modern interface.
@@ -6,32 +9,32 @@
 
 ## ✨ Features
 
-| FEATURE                          | DESCRIPTION                                                                        | TECHNOLOGY                   |
-| -------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------- |
-| 🔐 **Encrypt**                   | Secure your text using a custom key. Keeps formatting fully intact.                | **_FastAPI_**, **_Next.js_** |
-| 🔓 **Decrypt**                   | Unlock encrypted text with your key. Recover the original message.                 | **_FastAPI_**, **_Next.js_** |
-| 🔍 **Frequency Analysis Attack** | Analyze ciphertext patterns automatically. Reveal likely letter substitutions.     | **_FastAPI_**, **_Next.js_** |
-| 📄 **Generate Report**           | Compile comparison insights into a clean summary. Export a ready-to-submit report. | **_FastAPI_**, **_Next.js_** |
-| 🗝️ **Key Generation**            | Auto-generate secure random keys for any supported cipher.                         | **_Built-in_**               |
+| FEATURE                       | DESCRIPTION                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| **Encrypt**                   | Secure your text using a custom key. Keeps formatting fully intact.                |
+| **Decrypt**                   | Unlock encrypted text with your key. Recover the original message.                 |
+| **Frequency Analysis Attack** | Analyze ciphertext patterns automatically. Reveal likely letter substitutions.     |
+| **Generate Report**           | Compile comparison insights into a clean summary. Export a ready-to-submit report. |
+| **Key Generation**            | Auto-generate secure random keys for any supported cipher.                         |
 
 ## 🔑 Supported Ciphers
 
-| #   | CIPHER                    | KEY TYPE                   | ENCRYPTION / DECRYPTION | FREQUENCY ANALYSIS ATTACK |
-| --- | ------------------------- | -------------------------- | ----------------------- | ------------------------- |
-| 1️⃣  | **Caesar Cipher**         | Integer Shift Key          | ✅ Supported            | ✅ Supported              |
-| 2️⃣  | **Permutation Cipher**    | Permutation Alphabetic Key | ✅ Supported            | ✅ Supported              |
-| 3️⃣  | **Vigenère Cipher**       | Polyalphabetic Keyword     | ✅ Supported            | ✅ Supported              |
-| 4️⃣  | **Playfair Cipher (6x6)** | Alphanumeric Key Matrix    | ✅ Supported            | 🚧 Work In Progress       |
+| CIPHER                    | KEY TYPE                   | ENCRYPTION / DECRYPTION | FREQUENCY ANALYSIS ATTACK |
+| ------------------------- | -------------------------- | ----------------------- | ------------------------- |
+| **Caesar Cipher**         | Integer Shift Key          | ✅ Supported            | ✅ Supported              |
+| **Permutation Cipher**    | Permutation Alphabetic Key | ✅ Supported            | ✅ Supported              |
+| **Vigenère Cipher**       | Polyalphabetic Keyword     | ✅ Supported            | ✅ Supported              |
+| **Playfair Cipher (6x6)** | Alphanumeric Key Matrix    | ✅ Supported            | ❌ Unsupported            |
 
 ## 🛠️ Tech Stack
 
-| LAYER          | TECHNOLOGY                                    |
-| -------------- | --------------------------------------------- |
-| **Frontend**   | **TypeScript**, **Next.js**, **Tailwind CSS** |
-| **Shared UI**  | **shadcn/ui**, **Tabler Icons**, **Motion**   |
-| **Backend**    | **Python**, **FastAPI**, **Uvicorn**          |
-| **Monorepo**   | **Turborepo**, **pnpm Workspaces**            |
-| **Deployment** | **Vercel**                                    |
+| LAYER          | TECHNOLOGY                                                   |
+| -------------- | ------------------------------------------------------------ |
+| **Frontend**   | **TypeScript**, **Next.js**, **Tailwind CSS**, **shadcn/ui** |
+| **Shared UI**  | **Radix UI**, **Tabler Icons**, **Motion**                   |
+| **Backend**    | **Python**, **FastAPI**, **Uvicorn**                         |
+| **Monorepo**   | **Turborepo**, **pnpm Workspaces**                           |
+| **Deployment** | **Vercel**                                                   |
 
 ## 🏗️ Project Structure
 

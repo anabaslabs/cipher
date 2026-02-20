@@ -135,6 +135,7 @@ export default function Attack() {
       <main className="flex flex-col justify-center items-center gap-6 md:gap-10 p-4 md:p-6 w-full">
         <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
           <FileSelector
+            titleText="Add Ciphertext File"
             setFile={handleFileChange}
             state={state}
             className="w-full"

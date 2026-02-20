@@ -167,7 +167,7 @@ export default function Report() {
               onClearFilesReady={handleSetClearOriginal}
             />
             <FileSelector
-              titleText="Add Attacked File"
+              titleText="Add Recovered File"
               setFile={handleAttackedFileChange}
               state={state}
               className="w-full"
