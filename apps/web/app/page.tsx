@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Header from "@/components/Header";
 import { Badge } from "@workspace/ui/components/badge";
@@ -12,6 +14,12 @@ import {
 import Footer from "@/components/Footer";
 
 export default function Home() {
+  const playChestOpenSound = () => {
+    const audio = new Audio("/chest_open.ogg");
+    audio.volume = 0.1;
+    audio.play().catch(() => {});
+  };
+
   const features = [
     {
       title: "Encrypt",
@@ -81,7 +89,9 @@ export default function Home() {
               </CardHeader>
               <CardFooter>
                 <Button variant="default" asChild className="w-full">
-                  <Link href={feature.href}>Open {feature.title}</Link>
+                  <Link href={feature.href} onClick={playChestOpenSound}>
+                    Open {feature.title}
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>

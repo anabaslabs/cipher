@@ -48,6 +48,12 @@ export default function Decrypt() {
   const [keyCopied, setKeyCopied] = useState(false);
   const clearFilesRef = useRef<(() => void) | null>(null);
 
+  const playSound = () => {
+    const audio = new Audio("/enchanting_table.ogg");
+    audio.volume = 0.6;
+    audio.play().catch(() => {});
+  };
+
   useEffect(() => {
     console.log(formState.file);
   }, [formState.file]);
@@ -89,6 +95,8 @@ export default function Decrypt() {
   };
 
   const handleDecrypt = async () => {
+    playSound();
+
     const formData = new FormData();
 
     if (formState.file) {

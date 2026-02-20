@@ -37,6 +37,10 @@ export const AnimatedThemeToggler = ({
   const toggleTheme = useCallback(async () => {
     if (!buttonRef.current) return;
 
+    const audio = new Audio("/button.ogg");
+    audio.volume = 0.3;
+    audio.play().catch(() => {});
+
     await document.startViewTransition(() => {
       flushSync(() => {
         const newTheme = !isDark;

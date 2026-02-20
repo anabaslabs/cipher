@@ -18,6 +18,17 @@ export default function Header({
 }) {
   const router = useRouter();
 
+  const playChestCloseSound = () => {
+    const audio = new Audio("/chest_close.ogg");
+    audio.volume = 0.2;
+    audio.play().catch(() => {});
+  };
+
+  const handleBackClick = () => {
+    playChestCloseSound();
+    router.back();
+  };
+
   return (
     <header className="flex justify-center items-center px-4 sm:px-6 py-4 w-full">
       <div className="flex justify-between items-center w-full max-w-6xl">
@@ -27,7 +38,7 @@ export default function Header({
               size="icon"
               variant="secondary"
               className="rounded-full p-px"
-              onClick={() => router.back()}
+              onClick={handleBackClick}
               aria-label="Go back"
             >
               <IconArrowLeft className="size-5" aria-hidden="true" />

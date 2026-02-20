@@ -4,8 +4,9 @@ import Link from "next/link";
 import { IconBrandGithub } from "@tabler/icons-react";
 
 export default function Footer() {
-  function handleClink(url: string) {
-    window.open(url, "_blank", "noopener,noreferrer");
+  function playSound() {
+    const audio = new Audio("/faahhh.mp3");
+    audio.play().catch(() => {});
   }
 
   return (
@@ -23,7 +24,7 @@ export default function Footer() {
         </a>
         <p
           className="underline hover:opacity-85 hover:cursor-pointer"
-          onClick={() => handleClink("https://youtu.be/EA4DipdhpV8")}
+          onClick={playSound}
         >
           &&
         </p>
