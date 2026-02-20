@@ -63,19 +63,22 @@ def compare(original: str, recovered: str) -> str:
     word_pct = word_match / min(len(word_a), len(word_b)) if word_a and word_b else 0
     line_match = sum(x == y for x, y in zip(line_a, line_b))
     line_pct = line_match / min(len(line_a), len(line_b)) if line_a and line_b else 0
-    length_ok = len(original) == len(recovered)
+    length_diff = len(recovered) - len(original)
+    max_len = max(len(original), len(recovered), 1)
+    length_pct = 1.0 - abs(length_diff) / max_len
 
     score = (
-        overall_pct * 0.30
+        overall_pct * 0.25
         + alpha_pct * 0.25
-        + non_alpha_pct * 0.10
+        + non_alpha_pct * 0.05
         + word_pct * 0.20
-        + line_pct * 0.15
+        + line_pct * 0.10
+        + length_pct * 0.15
     )
 
-    if score == 1.0 and length_ok:
+    if score == 1.0:
         verdict = "PERFECT"
-    elif score >= 0.95 and length_ok:
+    elif score >= 0.95:
         verdict = "NEAR PERFECT"
     elif score >= 0.85:
         verdict = "NEAR MATCH"
@@ -92,7 +95,7 @@ def compare(original: str, recovered: str) -> str:
 
     report.append(f"Original File Length: {len(original)}")
     report.append(f"Decrypted File Length: {len(recovered)}")
-    report.append(f"Length match: {'YES' if len(original) == len(recovered) else 'NO'}\n")
+    report.append(f"Length difference: {'+' + str(length_diff) if length_diff > 0 else str(length_diff)}\n")
 
     report.append(f"Overall accuracy: {matches / n * 100:.2f}%")
     report.append(
