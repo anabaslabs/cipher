@@ -56,12 +56,35 @@ def compare(original: str, recovered: str) -> str:
     word_a, word_b = original.split(), recovered.split()
     line_a, line_b = original.splitlines(), recovered.splitlines()
 
-    verdict = (
-        "PERFECT" if matches == n and len(original) == len(recovered)
-        else "NEAR MATCH" if matches / n >= 0.95
-        else "PARTIAL MATCH" if matches / n >= 0.5
-        else "FAILED"
+    overall_pct = matches / n if n else 0
+    alpha_pct = alpha_match / len(alpha) if alpha else 1.0
+    non_alpha_pct = non_alpha_match / len(non_alpha) if non_alpha else 1.0
+    word_match = sum(x == y for x, y in zip(word_a, word_b))
+    word_pct = word_match / min(len(word_a), len(word_b)) if word_a and word_b else 0
+    line_match = sum(x == y for x, y in zip(line_a, line_b))
+    line_pct = line_match / min(len(line_a), len(line_b)) if line_a and line_b else 0
+    length_ok = len(original) == len(recovered)
+
+    score = (
+        overall_pct * 0.30
+        + alpha_pct * 0.25
+        + non_alpha_pct * 0.10
+        + word_pct * 0.20
+        + line_pct * 0.15
     )
+
+    if score == 1.0 and length_ok:
+        verdict = "PERFECT"
+    elif score >= 0.95 and length_ok:
+        verdict = "NEAR PERFECT"
+    elif score >= 0.85:
+        verdict = "NEAR MATCH"
+    elif score >= 0.60:
+        verdict = "PARTIAL MATCH"
+    elif score >= 0.30:
+        verdict = "WEAK MATCH"
+    else:
+        verdict = "FAILED"
 
     report = []
     report.append("======== COMPARISON REPORT ========\n")
@@ -80,9 +103,6 @@ def compare(original: str, recovered: str) -> str:
         f"Non-alpha accuracy: {non_alpha_match / len(non_alpha) * 100:.2f}%" if non_alpha
         else "Non-alpha accuracy: N/A"
     )
-
-    word_match = sum(x == y for x, y in zip(word_a, word_b))
-    line_match = sum(x == y for x, y in zip(line_a, line_b))
 
     if word_a and word_b:
         report.append(f"\nWord accuracy: {word_match / min(len(word_a), len(word_b)) * 100:.2f}%")
