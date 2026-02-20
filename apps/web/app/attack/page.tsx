@@ -99,7 +99,13 @@ export default function Attack() {
         });
       }
       if (data.guessed_key !== undefined && data.guessed_key !== null) {
-        const blob = new Blob([String(data.guessed_key)], {
+        const keyStr =
+          typeof data.guessed_key === "object" && data.guessed_key.matrix
+            ? JSON.stringify(data.guessed_key.matrix)
+            : typeof data.guessed_key === "object"
+              ? JSON.stringify(data.guessed_key)
+              : String(data.guessed_key);
+        const blob = new Blob([keyStr], {
           type: "text/plain",
         });
         files.push({
@@ -159,6 +165,7 @@ export default function Attack() {
                     <SelectItem value="caesar">Caesar Cipher</SelectItem>
                     <SelectItem value="permute">Permutation Cipher</SelectItem>
                     <SelectItem value="vigenere">Vigenère Cipher</SelectItem>
+                    <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

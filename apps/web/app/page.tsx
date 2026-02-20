@@ -61,6 +61,9 @@ export default function Home() {
             <Badge variant="secondary" className="text-sm border-gray-500">
               Playfair (6x6)
             </Badge>
+            <Badge variant="secondary" className="text-sm border-gray-500">
+              Hill (2x2)
+            </Badge>
           </h2>
         </div>
 

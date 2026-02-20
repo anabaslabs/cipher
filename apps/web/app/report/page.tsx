@@ -26,7 +26,9 @@ import {
 
 interface ReportStats {
   overallAccuracy: string;
-  lengthMatch: string;
+  lengthDifference: string;
+  originalLength: string;
+  decryptedLength: string;
   alphabetAccuracy: string;
   nonAlphaAccuracy: string;
   wordAccuracy: string;
@@ -44,7 +46,9 @@ function parseReportStats(reportText: string): ReportStats {
 
   return {
     overallAccuracy: get("Overall accuracy:"),
-    lengthMatch: get("Length match:"),
+    lengthDifference: get("Length difference:"),
+    originalLength: get("Original File Length:"),
+    decryptedLength: get("Decrypted File Length:"),
     alphabetAccuracy: get("Alphabet accuracy:"),
     nonAlphaAccuracy: get("Non-alpha accuracy:"),
     wordAccuracy: get("Word accuracy:"),
@@ -255,7 +259,7 @@ export default function Report() {
                   className="size-4 inline-block"
                   aria-hidden="true"
                 />
-                Length Match: <b>{reportStats.lengthMatch}</b>
+                Length Difference: <b>{reportStats.lengthDifference}</b>
               </div>
             </div>
 

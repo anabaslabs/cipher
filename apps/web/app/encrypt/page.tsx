@@ -97,10 +97,14 @@ export default function Encrypt() {
         `${apiUrl}/${formState.encryptionMethod}/key`
       );
 
-      if (response.data && response.data.key) {
+      if (response.data) {
+        const key =
+          formState.encryptionMethod === "hill"
+            ? JSON.stringify(response.data.matrix)
+            : (response.data.key?.toString() ?? "");
         setFormState((prev) => ({
           ...prev,
-          encryptionKey: response.data.key.toString(),
+          encryptionKey: key,
         }));
       }
     } catch (error) {
@@ -115,7 +119,14 @@ export default function Encrypt() {
       formData.append("file", formState.file);
     }
     if (formState.encryptionKey) {
-      formData.append("key", formState.encryptionKey);
+      const key =
+        formState.encryptionMethod === "hill"
+          ? JSON.stringify({
+              size: 2,
+              matrix: JSON.parse(formState.encryptionKey),
+            })
+          : formState.encryptionKey;
+      formData.append("key", key);
     }
 
     setState("processing");
@@ -193,6 +204,7 @@ export default function Encrypt() {
                     <SelectItem value="playfair">
                       Playfair Cipher (6x6)
                     </SelectItem>
+                    <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

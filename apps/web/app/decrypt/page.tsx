@@ -95,7 +95,14 @@ export default function Decrypt() {
       formData.append("file", formState.file);
     }
     if (formState.decryptionKey) {
-      formData.append("key", formState.decryptionKey);
+      const key =
+        formState.decryptionMethod === "hill"
+          ? JSON.stringify({
+              size: 2,
+              matrix: JSON.parse(formState.decryptionKey),
+            })
+          : formState.decryptionKey;
+      formData.append("key", key);
     }
 
     setState("processing");
@@ -173,6 +180,7 @@ export default function Decrypt() {
                     <SelectItem value="playfair">
                       Playfair Cipher (6x6)
                     </SelectItem>
+                    <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
