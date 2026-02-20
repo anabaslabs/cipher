@@ -79,9 +79,9 @@ async def caesar_report_route(
 
     name = get_name(original)
     recovered_name = (recovered.filename or "").upper()
-    algo_map = {"_CC_": "Caesar", "_PC_": "Permutation", "_VC_": "Vigenere", "_PFC_": "Playfair", "_HC_": "Hill"}
-    algo = next((v for k, v in algo_map.items() if k in recovered_name), "")
-    report_name = f"{name}_{algo}_report.txt" if algo else f"{name}_report.txt"
+    algo_suffixes = ["_CC_", "_PC_", "_VC_", "_PFC_", "_HC_"]
+    suffix = next((s.strip("_") for s in algo_suffixes if s in recovered_name), "")
+    report_name = f"{name}_{suffix}_report.txt" if suffix else f"{name}_report.txt"
     return PlainTextResponse(
         content=report,
         headers={
