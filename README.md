@@ -4,8 +4,6 @@
   <a href="https://github.com/anabaslabs/cipher"><b>Cipher</b></a> is your all-in-one toolkit for classic cryptography. Built with a <a href="https://nextjs.org"><b>Next.js</b></a> frontend and a <a href="https://fastapi.tiangolo.com"><b>FastAPI</b></a> backend, it lets you <b>Encrypt</b>, <b>Decrypt</b>, run <b>Frequency Analysis Attacks</b>, and generate detailed <b>Reports</b> — all from a clean & modern interface.
 </p>
 
----
-
 ## ✨ Features
 
 | FEATURE                          | DESCRIPTION                                                                        | TECHNOLOGY                   |
@@ -16,17 +14,24 @@
 | 📄 **Generate Report**           | Compile comparison insights into a clean summary. Export a ready-to-submit report. | **_FastAPI_**, **_Next.js_** |
 | 🗝️ **Key Generation**            | Auto-generate secure random keys for any supported cipher.                         | **_Built-in_**               |
 
----
-
 ## 🔑 Supported Ciphers
 
-| #   | CIPHER                 | KEY TYPE               | ATTACK SUPPORT        |
-| --- | ---------------------- | ---------------------- | --------------------- |
-| 1️⃣  | **Caesar Cipher**      | Integer shift key      | ✅ Frequency Analysis |
-| 2️⃣  | **Permutation Cipher** | Permutation string key | ✅ Frequency Analysis |
-| 3️⃣  | **Vigenère Cipher**    | Alphabetic keyword     | ✅ Frequency Analysis |
+| #   | CIPHER                    | KEY TYPE                   | ENCRYPTION / DECRYPTION | FREQUENCY ANALYSIS ATTACK |
+| --- | ------------------------- | -------------------------- | ----------------------- | ------------------------- |
+| 1️⃣  | **Caesar Cipher**         | Integer Shift Key          | ✅ Supported            | ✅ Supported              |
+| 2️⃣  | **Permutation Cipher**    | Permutation Alphabetic Key | ✅ Supported            | ✅ Supported              |
+| 3️⃣  | **Vigenère Cipher**       | Polyalphabetic Keyword     | ✅ Supported            | ✅ Supported              |
+| 4️⃣  | **Playfair Cipher (6x6)** | Alphanumeric Key Matrix    | ✅ Supported            | 🚧 Work In Progress       |
 
----
+## 🛠️ Tech Stack
+
+| LAYER          | TECHNOLOGY                                    |
+| -------------- | --------------------------------------------- |
+| **Frontend**   | **TypeScript**, **Next.js**, **Tailwind CSS** |
+| **Shared UI**  | **shadcn/ui**, **Tabler Icons**, **Motion**   |
+| **Backend**    | **Python**, **FastAPI**, **Uvicorn**          |
+| **Monorepo**   | **Turborepo**, **pnpm Workspaces**            |
+| **Deployment** | **Vercel**                                    |
 
 ## 🏗️ Project Structure
 
@@ -52,8 +57,6 @@ cipher/
     └── typescript-config/ # Shared TypeScript configuration
 ```
 
----
-
 ## ⚙️ API Endpoints
 
 | METHOD | ENDPOINT            | DESCRIPTION                                       |
@@ -72,20 +75,9 @@ cipher/
 | `POST` | `/vigenere/encrypt` | Encrypt with Vigenère cipher                      |
 | `POST` | `/vigenere/decrypt` | Decrypt with Vigenère cipher                      |
 | `POST` | `/vigenere/attack`  | Frequency analysis attack on Vigenère             |
-
----
-
-## 🛠️ Tech Stack
-
-| LAYER          | TECHNOLOGY                                                        |
-| -------------- | ----------------------------------------------------------------- |
-| **Frontend**   | **TypeScript**, **Next.js 16**, **React 19**, **Tailwind CSS v4** |
-| **Shared UI**  | **Radix UI**, **Tabler Icons**, **Motion**                        |
-| **Backend**    | **Python**, **FastAPI**, **Uvicorn**                              |
-| **Monorepo**   | **Turborepo**, **pnpm Workspaces**                                |
-| **Deployment** | **Vercel**, **Render**                                            |
-
----
+| `GET`  | `/playfair/key`     | Generate a random Playfair cipher (6x6)           |
+| `POST` | `/playfair/encrypt` | Encrypt with Playfair cipher (6x6)                |
+| `POST` | `/playfair/decrypt` | Decrypt with Playfair cipher (6x6)                |
 
 ## 🚀 Getting Started
 
@@ -93,32 +85,77 @@ cipher/
 
 - **Node.js** >= 20
 - **pnpm** >= 10
-- **Python** >= 3.11
+- **Python** >= 3.12
+- **Turbo CLI** (optional)
 
-### Installation
+### Setup
+
+Clone the repository and navigate into it:
 
 ```bash
-# Clone the repository
 git clone https://github.com/anabaslabs/cipher.git
 cd cipher
+```
 
-# Install frontend dependencies
+Install frontend dependencies (from monorepo root):
+
+```bash
 pnpm install
+```
 
-# Install backend dependencies
+Install backend dependencies (from monorepo root):
+
+```bash
 cd apps/api
-py -m venv venv
+py -m venv .venv
+```
+
+```bash
+.venv\Scripts\activate # Windows
+# OR
+source .venv/bin/activate # Linux / macOS
+```
+
+```bash
 pip install -r requirements.txt
 ```
 
-### Running the App
+Configure environment variables (from monorepo root):
 
 ```bash
-# Start frontend and backend concurrently
-pnpm dev
+cd apps/api
+cp .env.example .env
+cd ../../apps/web
+cp .env.example .env
 ```
 
----
+### Run Locally
+
+Start frontend and backend concurrently (from monorepo root):
+
+```bash
+pnpm dev
+# OR
+turbo dev
+```
+
+### In Production
+
+Build frontend and backend (from monorepo root):
+
+```bash
+pnpm build
+# OR
+turbo build
+```
+
+Start the production server (from monorepo root):
+
+```bash
+pnpm start
+# OR
+turbo start
+```
 
 ## 👥 Contributors
 

@@ -5,44 +5,31 @@ Next.js frontend for the Cipher project.
 ## Setup
 
 ```bash
-cd apps/web
 pnpm install
 ```
 
 ## Development
 
 ```bash
+pnpm dev
+# OR
 turbo dev
-```
-
-Or from the monorepo root:
-
-```bash
-turbo dev -F web
 ```
 
 ## Build
 
 ```bash
+pnpm build
+# OR
 turbo build
-```
-
-Or from the monorepo root:
-
-```bash
-turbo build -F web
 ```
 
 ## Production
 
 ```bash
+pnpm start
+# OR
 turbo start
-```
-
-Or from the monorepo root:
-
-```bash
-turbo start -F web
 ```
 
 ## Usage

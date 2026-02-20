@@ -10,8 +10,9 @@ py -m venv .venv
 ```
 
 ```bash
-.venv\Scripts\activate   # Windows
-source .venv/bin/activate  # macOS/Linux
+.venv\Scripts\activate # Windows
+# OR
+source .venv/bin/activate # Linux / macOS
 ```
 
 ```bash
@@ -21,25 +22,17 @@ pip install -r requirements.txt
 ## Development
 
 ```bash
+pnpm dev
+# OR
 turbo dev
-```
-
-Or from the monorepo root:
-
-```bash
-turbo dev -F api
 ```
 
 ## Production
 
 ```bash
+pnpm start
+# OR
 turbo start
-```
-
-Or from the monorepo root:
-
-```bash
-turbo start -F api
 ```
 
 ## Usage
