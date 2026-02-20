@@ -47,7 +47,7 @@ export default function Home() {
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
             Your all-in-one toolkit for Cipher Project
           </h1>
-          <h2 className="flex justify-center items-center gap-2 font-semibold">
+          <h2 className="flex flex-wrap justify-center items-center gap-2 font-semibold">
             <span>Supported Ciphers:</span>
             <Badge variant="secondary" className="text-sm border-gray-500">
               Caesar
