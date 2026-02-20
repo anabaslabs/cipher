@@ -107,13 +107,13 @@ Install backend dependencies (from monorepo root):
 
 ```bash
 cd apps/api
-py -m venv .venv
+py -m venv venv
 ```
 
 ```bash
-.venv\Scripts\activate # Windows
+venv\Scripts\activate # Windows
 # OR
-source .venv/bin/activate # Linux / macOS
+source venv/bin/activate # Linux / macOS
 ```
 
 ```bash
