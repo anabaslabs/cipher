@@ -163,7 +163,9 @@ export default function Encrypt() {
 
       const files: DownloadFile[] = [];
       const baseName = formState.file?.name.replace(/\.[^.]+$/, "") || "file";
-      const suffix = formState.encryptionMethod ? (algoSuffixMap[formState.encryptionMethod] || "") : "";
+      const suffix = formState.encryptionMethod
+        ? algoSuffixMap[formState.encryptionMethod] || ""
+        : "";
 
       const encText = response.data.ciphertext || "";
       const encTextBlob = new Blob([encText], { type: "text/plain" });
@@ -176,7 +178,9 @@ export default function Encrypt() {
 
       if (response.data.key !== undefined && response.data.key !== null) {
         const keyStr =
-          typeof response.data.key === "object"
+          typeof response.data.key === "object" && response.data.key.matrix
+            ? JSON.stringify(response.data.key.matrix)
+            : typeof response.data.key === "object"
             ? JSON.stringify(response.data.key)
             : String(response.data.key);
         const keyBlob = new Blob([keyStr], { type: "text/plain" });
@@ -327,13 +331,10 @@ export default function Encrypt() {
 
         {state === "done" && downloadFiles.length > 0 && (
           <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground w-full">
+            <div className="flex flex-col justify-center items-start gap-5 text-sm text-muted-foreground w-full">
               <div className="flex flex-row flex-wrap justify-start items-center gap-1">
                 <span className="flex justify-center items-center gap-1 leading-none">
-                  <IconKey
-                    className="size-4 inline-block"
-                    aria-hidden="true"
-                  />
+                  <IconKey className="size-4 inline-block" aria-hidden="true" />
                   Encryption Key:
                 </span>
                 <span className="flex justify-center items-center gap-1.5 leading-none">
@@ -371,7 +372,10 @@ export default function Encrypt() {
               )}
 
               {downloadFiles.map((dlFile) => (
-                <div key={dlFile.filename} className="flex items-center gap-1 leading-none">
+                <div
+                  key={dlFile.filename}
+                  className="flex items-center gap-1 leading-none"
+                >
                   <IconFileInfo
                     className="size-4 inline-block"
                     aria-hidden="true"
