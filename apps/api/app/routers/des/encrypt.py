@@ -13,4 +13,7 @@ def encrypt(plaintext: str, hex_key: str) -> str:
     padded_data = pad(plaintext.encode("utf-8"), DES.block_size)
     ciphertext = cipher.encrypt(padded_data)
 
-    return base64.b64encode(ciphertext).decode("utf-8")
+    return {
+        "key": hex_key,
+        "ciphertext": base64.b64encode(ciphertext).decode("utf-8")
+    }

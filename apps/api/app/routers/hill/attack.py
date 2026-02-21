@@ -90,7 +90,7 @@ def hill_attack(ciphertext: str) -> dict:
 
         return {
             "guessed_key": key_data,
-            "guessed_plaintext": full_plaintext,
+            "guessed_plaintext": full_plaintext["plaintext"],
         }
 
     return {

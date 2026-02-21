@@ -6,33 +6,33 @@ from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
 
 from app.routers.report import compare
 
-from app.routers.caesar_key import generate_key as caesar_generate_key
-from app.routers.caesar_encrypt import caesar_encrypt
-from app.routers.caesar_decrypt import caesar_decrypt
-from app.routers.caesar_attack import caesar_attack
+from app.routers.caesar.key import generate_key as caesar_generate_key
+from app.routers.caesar.encrypt import caesar_encrypt
+from app.routers.caesar.decrypt import caesar_decrypt
+from app.routers.caesar.attack import caesar_attack
 
-from app.routers.permute_key import generate_key as permute_generate_key
-from app.routers.permute_encrypt import encrypt as permute_encrypt
-from app.routers.permute_decrypt import decrypt as permute_decrypt
-from app.routers.permute_attack import frequency_attack
+from app.routers.permute.key import generate_key as permute_generate_key
+from app.routers.permute.encrypt import encrypt as permute_encrypt
+from app.routers.permute.decrypt import decrypt as permute_decrypt
+from app.routers.permute.attack import frequency_attack
 
-from app.routers.vigenere_key import generate_key as vigenere_generate_key
-from app.routers.vigenere_encrypt import encrypt as vigenere_encrypt
-from app.routers.vigenere_decrypt import decrypt as vigenere_decrypt
-from app.routers.vigenere_attack import vigenere_attack
+from app.routers.vigenere.key import generate_key as vigenere_generate_key
+from app.routers.vigenere.encrypt import encrypt as vigenere_encrypt
+from app.routers.vigenere.decrypt import decrypt as vigenere_decrypt
+from app.routers.vigenere.attack import vigenere_attack
 
-from app.routers.playfair_key import generate_key as playfair_generate_key
-from app.routers.playfair_encrypt import encrypt as playfair_encrypt
-from app.routers.playfair_decrypt import decrypt as playfair_decrypt
+from app.routers.playfair.key import generate_key as playfair_generate_key
+from app.routers.playfair.encrypt import encrypt as playfair_encrypt
+from app.routers.playfair.decrypt import decrypt as playfair_decrypt
 
-from app.routers.hill_key import generate_key as hill_generate_key
-from app.routers.hill_encrypt import encrypt as hill_encrypt
-from app.routers.hill_decrypt import decrypt as hill_decrypt
-from app.routers.hill_attack import hill_attack
+from app.routers.hill.key import generate_key as hill_generate_key
+from app.routers.hill.encrypt import encrypt as hill_encrypt
+from app.routers.hill.decrypt import decrypt as hill_decrypt
+from app.routers.hill.attack import hill_attack
 
-from app.routers.des_key import generate_key as des_generate_key
-from app.routers.des_encrypt import encrypt as des_encrypt
-from app.routers.des_decrypt import decrypt as des_decrypt
+from app.routers.des.key import generate_key as des_generate_key
+from app.routers.des.encrypt import encrypt as des_encrypt
+from app.routers.des.decrypt import decrypt as des_decrypt
 
 
 router = APIRouter()
@@ -85,7 +85,7 @@ async def caesar_report_route(
     recovered_name = (recovered.filename or "").upper()
     algo_suffixes = ["_CC_", "_PC_", "_VC_", "_PFC_", "_HC_", "_DC_"]
     suffix = next((s.strip("_") for s in algo_suffixes if s in recovered_name), "")
-    report_name = f"{name}_{suffix}_report.txt" if suffix else f"{name}_report.txt"
+    report_name = f"{name}_{suffix}_Report.txt" if suffix else f"{name}_Report.txt"
     return PlainTextResponse(
         content=report,
         headers={
@@ -105,12 +105,7 @@ async def caesar_key_route():
 async def caesar_encrypt_route(file: UploadFile = File(...), key: int = Form(...)):
     content = await read_file(file)
     encrypted = caesar_encrypt(content, key)
-    return PlainTextResponse(
-        content=encrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_CC.txt"'
-        },
-    )
+    return JSONResponse(content=encrypted)
 
 
 # Caesar Decryption
@@ -118,12 +113,7 @@ async def caesar_encrypt_route(file: UploadFile = File(...), key: int = Form(...
 async def caesar_decrypt_route(file: UploadFile = File(...), key: int = Form(...)):
     content = await read_file(file)
     decrypted = caesar_decrypt(content, key)
-    return PlainTextResponse(
-        content=decrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
-        },
-    )
+    return JSONResponse(content=decrypted)
 
 
 # Caesar Attack
@@ -145,12 +135,7 @@ async def permute_key_route():
 async def permute_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
     encrypted = permute_encrypt(content, key)
-    return PlainTextResponse(
-        content=encrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_PC.txt"'
-        },
-    )
+    return JSONResponse(content=encrypted)
 
 
 # Permutation Decryption
@@ -158,12 +143,7 @@ async def permute_encrypt_route(file: UploadFile = File(...), key: str = Form(..
 async def permute_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
     decrypted = permute_decrypt(content, key)
-    return PlainTextResponse(
-        content=decrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
-        },
-    )
+    return JSONResponse(content=decrypted)
 
 
 # Permutation Attack
@@ -187,12 +167,7 @@ async def vigenere_key_route():
 async def vigenere_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
     encrypted = vigenere_encrypt(content, key)
-    return PlainTextResponse(
-        content=encrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_VC.txt"'
-        },
-    )
+    return JSONResponse(content=encrypted)
 
 
 # Vigenere Decryption
@@ -200,12 +175,7 @@ async def vigenere_encrypt_route(file: UploadFile = File(...), key: str = Form(.
 async def vigenere_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
     decrypted = vigenere_decrypt(content, key)
-    return PlainTextResponse(
-        content=decrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
-        },
-    )
+    return JSONResponse(content=decrypted)
 
 
 # Vigenere Attack
@@ -228,32 +198,16 @@ async def playfair_key_route():
 @router.post("/playfair/encrypt", tags=["playfair"])
 async def playfair_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
-    encrypted_body, meta = playfair_encrypt(content, key)
-    payload = json.dumps(meta) + "\n---PLAYFAIR_META---\n" + encrypted_body
-    return PlainTextResponse(
-        content=payload,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_PFC.txt"'
-        },
-    )
+    encrypted = playfair_encrypt(content, key)
+    return JSONResponse(content=encrypted)
 
 
 # Playfair Decryption
 @router.post("/playfair/decrypt", tags=["playfair"])
 async def playfair_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
-    content = await read_file(file)
-    if "---PLAYFAIR_META---" in content:
-        meta_str, ciphertext = content.split("\n---PLAYFAIR_META---\n", 1)
-        meta = json.loads(meta_str)
-    else:
-        return JSONResponse(content={"error": "Missing meta data in encrypted file"}, status_code=400)
-    decrypted = playfair_decrypt(ciphertext, key, meta)
-    return PlainTextResponse(
-        content=decrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
-        },
-    )
+    ciphertext = await read_file(file)
+    decrypted = playfair_decrypt(ciphertext, key)
+    return JSONResponse(content=decrypted)
 
 
 # Hill Key
@@ -268,12 +222,7 @@ async def hill_encrypt_route(file: UploadFile = File(...), key: str = Form(...))
     content = await read_file(file)
     key_data = json.loads(key)
     encrypted = hill_encrypt(content, key_data)
-    return PlainTextResponse(
-        content=encrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_HC.txt"'
-        },
-    )
+    return JSONResponse(content=encrypted)
 
 
 # Hill Decryption
@@ -282,12 +231,7 @@ async def hill_decrypt_route(file: UploadFile = File(...), key: str = Form(...))
     content = await read_file(file)
     key_data = json.loads(key)
     decrypted = hill_decrypt(content, key_data)
-    return PlainTextResponse(
-        content=decrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
-        },
-    )
+    return JSONResponse(content=decrypted)
 
 
 # Hill Attack
@@ -311,12 +255,7 @@ async def des_key_route():
 async def des_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
     encrypted = des_encrypt(content, key)
-    return PlainTextResponse(
-        content=encrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_DC.txt"'
-        },
-    )
+    return JSONResponse(content=encrypted)
 
 
 # DES Decryption
@@ -324,9 +263,4 @@ async def des_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
 async def des_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
     decrypted = des_decrypt(content, key)
-    return PlainTextResponse(
-        content=decrypted,
-        headers={
-            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
-        },
-    )
+    return JSONResponse(content=decrypted)

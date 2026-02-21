@@ -1,6 +1,5 @@
 from collections import Counter
 
-
 ROWS = [
     ["A", "F", "K", "P", "U", "1", "6"],
     ["B", "G", "L", "Q", "V", "2", "7"],
@@ -9,6 +8,31 @@ ROWS = [
     ["E", "J", "O", "T", "Y", "5", "0"],
 ]
 
+def fast_ratio(seq1, seq2, lookahead=15):
+    i = j = matches = 0
+    n1, n2 = len(seq1), len(seq2)
+    
+    while i < n1 and j < n2:
+        if seq1[i] == seq2[j]:
+            matches += 1
+            i += 1
+            j += 1
+        else:
+            found = False
+            for k in range(1, lookahead + 1):
+                if i + k < n1 and seq1[i + k] == seq2[j]:
+                    i += k
+                    found = True
+                    break
+                if j + k < n2 and seq1[i] == seq2[j + k]:
+                    j += k
+                    found = True
+                    break
+            if not found:
+                i += 1
+                j += 1
+                
+    return (2.0 * matches) / (n1 + n2) if (n1 + n2) > 0 else 0.0
 
 def _freq_diff_table(freq_a, freq_b, total_a, total_b):
     def fmt(c):
@@ -26,7 +50,6 @@ def _freq_diff_table(freq_a, freq_b, total_a, total_b):
     lines.append(" " * (16 * 4) + z_val)
     return "\n".join(lines)
 
-
 def _count_table(freq):
     lines = []
     for row in ROWS:
@@ -39,26 +62,26 @@ def _count_table(freq):
     lines.append(" " * (12 * 4) + z_val)
     return "\n".join(lines)
 
-
 def compare(original: str, recovered: str) -> str:
     original = original.upper()
     recovered = recovered.upper()
 
-    n = min(len(original), len(recovered))
-    matches = sum(original[i] == recovered[i] for i in range(n))
+    overall_pct = fast_ratio(original, recovered)
 
-    alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if x.isascii() and x.isalpha()]
-    alpha_match = sum(x == y for x, y in alpha)
+    alpha_orig = [x for x in original if x.isascii() and x.isalpha()]
+    alpha_recv = [x for x in recovered if x.isascii() and x.isalpha()]
+    alpha_pct = fast_ratio(alpha_orig, alpha_recv)
 
-    non_alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if not (x.isascii() and x.isalpha())]
-    non_alpha_match = sum(x == y for x, y in non_alpha)
+    non_alpha_orig = [x for x in original if not (x.isascii() and x.isalpha())]
+    non_alpha_recv = [x for x in recovered if not (x.isascii() and x.isalpha())]
+    non_alpha_pct = fast_ratio(non_alpha_orig, non_alpha_recv)
 
     word_a, word_b = original.split(), recovered.split()
     line_a, line_b = original.splitlines(), recovered.splitlines()
 
-    overall_pct = matches / n if n else 0
-    word_match = sum(x == y for x, y in zip(word_a, word_b))
-    line_match = sum(x == y for x, y in zip(line_a, line_b))
+    word_pct = fast_ratio(word_a, word_b) if word_a and word_b else 0
+    line_pct = fast_ratio(line_a, line_b) if line_a and line_b else 0
+    
     length_diff = len(recovered) - len(original)
 
     if overall_pct == 1.0:
@@ -82,20 +105,20 @@ def compare(original: str, recovered: str) -> str:
     report.append(f"Decrypted File Length: {len(recovered)}")
     report.append(f"Length difference: {'+' + str(length_diff) if length_diff > 0 else str(length_diff)}\n")
 
-    report.append(f"Overall accuracy: {matches / n * 100:.2f}%")
+    report.append(f"Overall accuracy: {overall_pct * 100:.2f}%")
     report.append(
-        f"Alphabet accuracy: {alpha_match / len(alpha) * 100:.2f}%" if alpha
+        f"Alphabet accuracy: {alpha_pct * 100:.2f}%" if alpha_orig
         else "Alphabet accuracy: N/A"
     )
     report.append(
-        f"Non-alpha accuracy: {non_alpha_match / len(non_alpha) * 100:.2f}%" if non_alpha
+        f"Non-alpha accuracy: {non_alpha_pct * 100:.2f}%" if non_alpha_orig
         else "Non-alpha accuracy: N/A"
     )
 
     if word_a and word_b:
-        report.append(f"\nWord accuracy: {word_match / min(len(word_a), len(word_b)) * 100:.2f}%")
+        report.append(f"\nWord accuracy: {word_pct * 100:.2f}%")
     if line_a and line_b:
-        report.append(f"Line accuracy: {line_match / min(len(line_a), len(line_b)) * 100:.2f}%")
+        report.append(f"Line accuracy: {line_pct * 100:.2f}%")
 
     freq_a = Counter(c for c in original if c.isascii() and c.isalnum())
     freq_b = Counter(c for c in recovered if c.isascii() and c.isalnum())

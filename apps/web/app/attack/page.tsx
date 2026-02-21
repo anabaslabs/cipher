@@ -19,6 +19,7 @@ import FileSelector from "@/components/FileSelector";
 import {
   IconCheck,
   IconClock,
+  IconCopy,
   IconDownload,
   IconFileInfo,
   IconKey,
@@ -35,17 +36,14 @@ type DownloadFile = {
   label: string;
 };
 
-type AttackMeta = {
-  best_score?: number;
-};
-
 export default function Attack() {
   const [state, setState] = useState<State>("idle");
   const [cipherMethod, setCipherMethod] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [downloadFiles, setDownloadFiles] = useState<DownloadFile[]>([]);
-  const [attackMeta, setAttackMeta] = useState<AttackMeta | null>(null);
+  const [guessedKey, setGuessedKey] = useState<string | null>(null);
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
+  const [keyCopied, setKeyCopied] = useState(false);
   const clearFilesRef = useRef<(() => void) | null>(null);
 
   const playSound = () => {
@@ -75,7 +73,7 @@ export default function Attack() {
     setCipherMethod(null);
     setFile(null);
     setDownloadFiles([]);
-    setAttackMeta(null);
+    setGuessedKey(null);
     setTimeTaken(null);
   }, [downloadFiles]);
 
@@ -107,7 +105,7 @@ export default function Attack() {
         const blob = new Blob([data.guessed_plaintext], { type: "text/plain" });
         files.push({
           url: window.URL.createObjectURL(blob),
-          filename: `${baseName}_attacked.txt`,
+          filename: `${baseName}_Attacked.txt`,
           size: blob.size,
           label: "Attacked",
         });
@@ -124,14 +122,14 @@ export default function Attack() {
         });
         files.push({
           url: window.URL.createObjectURL(blob),
-          filename: `${baseName}_key.txt`,
+          filename: `${baseName}_Key.txt`,
           size: blob.size,
           label: "Key",
         });
+        setGuessedKey(keyStr);
       }
 
       setDownloadFiles(files);
-      setAttackMeta({ best_score: data.best_score });
       setTimeTaken((performance.now() - startTime) / 1000);
       playCompleteSound();
       setState("done");
@@ -236,7 +234,49 @@ export default function Attack() {
 
         {state === "done" && downloadFiles.length > 0 && (
           <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-            <div className="flex flex-col justify-center items-start gap-6 text-sm text-muted-foreground w-full">
+            <div className="flex flex-col justify-center items-start gap-5 text-sm text-muted-foreground w-full">
+              {guessedKey && (
+                <div className="flex flex-row flex-wrap justify-start items-center gap-1">
+                  <span className="flex justify-center items-center gap-1 leading-none">
+                    <IconKey
+                      className="size-4 inline-block"
+                      aria-hidden="true"
+                    />
+                    Guessed Key:
+                  </span>
+                  <span className="flex justify-center items-center gap-1.5 leading-none">
+                    {guessedKey}
+                    <Button
+                      size="icon-lg"
+                      variant="ghost"
+                      className="size-4"
+                      onClick={() => {
+                        navigator.clipboard.writeText(guessedKey || "");
+                        setKeyCopied(true);
+                        setTimeout(() => setKeyCopied(false), 2000);
+                      }}
+                      aria-label="Copy key to clipboard"
+                    >
+                      {keyCopied ? (
+                        <IconCheck className="size-4" aria-hidden="true" />
+                      ) : (
+                        <IconCopy className="size-4" aria-hidden="true" />
+                      )}
+                    </Button>
+                  </span>
+                </div>
+              )}
+
+              {timeTaken !== null && (
+                <div className="flex items-center gap-1 leading-none">
+                  <IconClock
+                    className="size-4 inline-block"
+                    aria-hidden="true"
+                  />
+                  Time Taken: {timeTaken.toFixed(2)} seconds
+                </div>
+              )}
+
               {downloadFiles.map((dlFile) => (
                 <div
                   key={dlFile.filename}
@@ -249,23 +289,6 @@ export default function Attack() {
                   {dlFile.label} File Size: {formatBytes(dlFile.size)}
                 </div>
               ))}
-
-              {timeTaken !== null && (
-                <div className="flex items-center gap-1 leading-none">
-                  <IconClock
-                    className="size-4 inline-block"
-                    aria-hidden="true"
-                  />
-                  Time Taken: {timeTaken.toFixed(2)} seconds
-                </div>
-              )}
-
-              {attackMeta?.best_score !== undefined && (
-                <div className="flex items-center gap-1 leading-none">
-                  <IconKey className="size-4 inline-block" aria-hidden="true" />
-                  Best Score: {attackMeta.best_score}
-                </div>
-              )}
             </div>
             <div className="flex flex-col justify-center items-center gap-4 w-full">
               {downloadFiles.map((dlFile) => (
