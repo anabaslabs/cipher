@@ -205,15 +205,8 @@ async def playfair_encrypt_route(file: UploadFile = File(...), key: str = Form(.
 # Playfair Decryption
 @router.post("/playfair/decrypt", tags=["playfair"])
 async def playfair_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
-    content = await read_file(file)
-    try:
-        data = json.loads(content)
-        ciphertext = data.get("ciphertext", "")
-        meta = data.get("meta", {})
-    except json.JSONDecodeError:
-        return JSONResponse(content={"error": "Invalid JSON format in encrypted file"}, status_code=400)
-    
-    decrypted = playfair_decrypt(ciphertext, key, meta)
+    ciphertext = await read_file(file)
+    decrypted = playfair_decrypt(ciphertext, key)
     return JSONResponse(content=decrypted)
 
 

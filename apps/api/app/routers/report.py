@@ -1,5 +1,5 @@
+import difflib
 from collections import Counter
-
 
 ROWS = [
     ["A", "F", "K", "P", "U", "1", "6"],
@@ -8,7 +8,6 @@ ROWS = [
     ["D", "I", "N", "S", "X", "4", "9"],
     ["E", "J", "O", "T", "Y", "5", "0"],
 ]
-
 
 def _freq_diff_table(freq_a, freq_b, total_a, total_b):
     def fmt(c):
@@ -26,7 +25,6 @@ def _freq_diff_table(freq_a, freq_b, total_a, total_b):
     lines.append(" " * (16 * 4) + z_val)
     return "\n".join(lines)
 
-
 def _count_table(freq):
     lines = []
     for row in ROWS:
@@ -39,26 +37,26 @@ def _count_table(freq):
     lines.append(" " * (12 * 4) + z_val)
     return "\n".join(lines)
 
-
 def compare(original: str, recovered: str) -> str:
     original = original.upper()
     recovered = recovered.upper()
 
-    n = min(len(original), len(recovered))
-    matches = sum(original[i] == recovered[i] for i in range(n))
+    overall_pct = difflib.SequenceMatcher(None, original, recovered).ratio()
 
-    alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if x.isascii() and x.isalpha()]
-    alpha_match = sum(x == y for x, y in alpha)
+    alpha_orig = "".join(x for x in original if x.isascii() and x.isalpha())
+    alpha_recv = "".join(x for x in recovered if x.isascii() and x.isalpha())
+    alpha_pct = difflib.SequenceMatcher(None, alpha_orig, alpha_recv).ratio()
 
-    non_alpha = [(x, y) for x, y in zip(original[:n], recovered[:n]) if not (x.isascii() and x.isalpha())]
-    non_alpha_match = sum(x == y for x, y in non_alpha)
+    non_alpha_orig = "".join(x for x in original if not (x.isascii() and x.isalpha()))
+    non_alpha_recv = "".join(x for x in recovered if not (x.isascii() and x.isalpha()))
+    non_alpha_pct = difflib.SequenceMatcher(None, non_alpha_orig, non_alpha_recv).ratio()
 
     word_a, word_b = original.split(), recovered.split()
     line_a, line_b = original.splitlines(), recovered.splitlines()
 
-    overall_pct = matches / n if n else 0
-    word_match = sum(x == y for x, y in zip(word_a, word_b))
-    line_match = sum(x == y for x, y in zip(line_a, line_b))
+    word_pct = difflib.SequenceMatcher(None, word_a, word_b).ratio() if word_a and word_b else 0
+    line_pct = difflib.SequenceMatcher(None, line_a, line_b).ratio() if line_a and line_b else 0
+    
     length_diff = len(recovered) - len(original)
 
     if overall_pct == 1.0:
@@ -82,20 +80,20 @@ def compare(original: str, recovered: str) -> str:
     report.append(f"Decrypted File Length: {len(recovered)}")
     report.append(f"Length difference: {'+' + str(length_diff) if length_diff > 0 else str(length_diff)}\n")
 
-    report.append(f"Overall accuracy: {matches / n * 100:.2f}%")
+    report.append(f"Overall accuracy: {overall_pct * 100:.2f}%")
     report.append(
-        f"Alphabet accuracy: {alpha_match / len(alpha) * 100:.2f}%" if alpha
+        f"Alphabet accuracy: {alpha_pct * 100:.2f}%" if alpha_orig
         else "Alphabet accuracy: N/A"
     )
     report.append(
-        f"Non-alpha accuracy: {non_alpha_match / len(non_alpha) * 100:.2f}%" if non_alpha
+        f"Non-alpha accuracy: {non_alpha_pct * 100:.2f}%" if non_alpha_orig
         else "Non-alpha accuracy: N/A"
     )
 
     if word_a and word_b:
-        report.append(f"\nWord accuracy: {word_match / min(len(word_a), len(word_b)) * 100:.2f}%")
+        report.append(f"\nWord accuracy: {word_pct * 100:.2f}%")
     if line_a and line_b:
-        report.append(f"Line accuracy: {line_match / min(len(line_a), len(line_b)) * 100:.2f}%")
+        report.append(f"Line accuracy: {line_pct * 100:.2f}%")
 
     freq_a = Counter(c for c in original if c.isascii() and c.isalnum())
     freq_b = Counter(c for c in recovered if c.isascii() and c.isalnum())

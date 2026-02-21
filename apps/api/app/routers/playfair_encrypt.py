@@ -1,99 +1,62 @@
 import string
 
-CHARS = string.ascii_uppercase + string.digits
+CHARS = string.ascii_uppercase + string.digits + "@#%&*()_+-={}[]:;\"'<>,.?! \n\t"
 
-
-def generate_key_table(key: str) -> list[list[str]]:
+def generate_key_data(key: str) -> tuple[list[list[str]], dict[str, tuple[int, int]]]:
     key = key.upper()
-    seen = []
-    for ch in key:
-        if ch in CHARS and ch not in seen:
-            seen.append(ch)
-    for ch in CHARS:
-        if ch not in seen:
-            seen.append(ch)
-    return [seen[i * 6:(i + 1) * 6] for i in range(6)]
+    seen_chars = []
+    seen_set = set()
+    for ch in key + CHARS:
+        if ch in CHARS and ch not in seen_set:
+            seen_chars.append(ch)
+            seen_set.add(ch)
+    table = [seen_chars[i * 8:(i + 1) * 8] for i in range(8)]
+    lookup = {ch: (r, c) for r, row in enumerate(table) for c, ch in enumerate(row)}
+    return table, lookup
 
-
-def get_position(table, ch):
-    for r, row in enumerate(table):
-        if ch in row:
-            return r, row.index(ch)
-    raise ValueError(f"Character '{ch}' not in table.")
-
-
-def prepare_alpha(alpha_str: str) -> tuple[list[str], list[int]]:
-    filtered = list(alpha_str)
+def prepare_text(text: str) -> list[str]:
+    filtered = [ch for ch in text.upper() if ch in CHARS]
     digrams = []
-    filler_positions = []
     i = 0
     while i < len(filtered):
         a = filtered[i]
         if i + 1 < len(filtered):
             b = filtered[i + 1]
             if a == b:
-                filler = '9' if a == 'X' else 'X'
-                digrams.append(a)
-                filler_positions.append(len(digrams))
-                digrams.append(filler)
+                filler = 'X' if a != 'X' else 'Y'
+                digrams.extend([a, filler])
                 i += 1
             else:
                 digrams.extend([a, b])
                 i += 2
         else:
-            filler = '9' if a == 'X' else 'X'
-            digrams.append(a)
-            filler_positions.append(len(digrams))
-            digrams.append(filler)
+            filler = 'X' if a != 'X' else 'Y'
+            digrams.extend([a, filler])
             i += 1
-    return digrams, filler_positions
+    return digrams
 
-
-def encrypt_digrams(table, digrams: list[str]) -> str:
+def encrypt_digrams(table: list[list[str]], lookup: dict[str, tuple[int, int]], digrams: list[str]) -> str:
     result = []
     for i in range(0, len(digrams), 2):
         a, b = digrams[i], digrams[i + 1]
-        ra, ca = get_position(table, a)
-        rb, cb = get_position(table, b)
+        ra, ca = lookup[a]
+        rb, cb = lookup[b]
         if ra == rb:
-            result.append(table[ra][(ca + 1) % 6])
-            result.append(table[rb][(cb + 1) % 6])
+            result.append(table[ra][(ca + 1) % 8])
+            result.append(table[rb][(cb + 1) % 8])
         elif ca == cb:
-            result.append(table[(ra + 1) % 6][ca])
-            result.append(table[(rb + 1) % 6][cb])
+            result.append(table[(ra + 1) % 8][ca])
+            result.append(table[(rb + 1) % 8][cb])
         else:
             result.append(table[ra][cb])
             result.append(table[rb][ca])
     return ''.join(result)
 
-
-def encrypt(plaintext: str, key: str) -> tuple[str, dict]:
-    table = generate_key_table(key)
-    upper = plaintext.upper()
-
-    non_alpha = {}
-    alpha_chars = []
-    alpha_positions = []
-
-    for i, ch in enumerate(upper):
-        if ch in CHARS:
-            alpha_chars.append(ch)
-            alpha_positions.append(i)
-        else:
-            non_alpha[str(i)] = plaintext[i]
-
-    digrams, filler_positions = prepare_alpha(''.join(alpha_chars))
-    encrypted_body = encrypt_digrams(table, digrams)
-
-    meta = {
-        "non_alpha": non_alpha,
-        "alpha_positions": alpha_positions,
-        "filler_positions": filler_positions,
-        "original_length": len(plaintext)
-    }
-
+def encrypt(plaintext: str, key: str) -> dict:
+    table, lookup = generate_key_data(key)
+    digrams = prepare_text(plaintext)
+    encrypted_body = encrypt_digrams(table, lookup, digrams)
     return {
         "key": key,
-        "ciphertext": encrypted_body,
-        "meta": meta
+        "ciphertext": encrypted_body
     }
