@@ -30,6 +30,10 @@ from app.routers.hill_encrypt import encrypt as hill_encrypt
 from app.routers.hill_decrypt import decrypt as hill_decrypt
 from app.routers.hill_attack import hill_attack
 
+from app.routers.des_key import generate_key as des_generate_key
+from app.routers.des_encrypt import encrypt as des_encrypt
+from app.routers.des_decrypt import decrypt as des_decrypt
+
 
 router = APIRouter()
 
@@ -79,7 +83,7 @@ async def caesar_report_route(
 
     name = get_name(original)
     recovered_name = (recovered.filename or "").upper()
-    algo_suffixes = ["_CC_", "_PC_", "_VC_", "_PFC_", "_HC_"]
+    algo_suffixes = ["_CC_", "_PC_", "_VC_", "_PFC_", "_HC_", "_DC_"]
     suffix = next((s.strip("_") for s in algo_suffixes if s in recovered_name), "")
     report_name = f"{name}_{suffix}_report.txt" if suffix else f"{name}_report.txt"
     return PlainTextResponse(
@@ -294,3 +298,35 @@ async def hill_attack_route(file: UploadFile = File(...)):
         None, hill_attack, content
     )
     return JSONResponse(content=result)
+
+
+# DES Key
+@router.get("/des/key", tags=["des"])
+async def des_key_route():
+    return {"key": des_generate_key()}
+
+
+# DES Encryption
+@router.post("/des/encrypt", tags=["des"])
+async def des_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    encrypted = des_encrypt(content, key)
+    return PlainTextResponse(
+        content=encrypted,
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_encrypted_DC.txt"'
+        },
+    )
+
+
+# DES Decryption
+@router.post("/des/decrypt", tags=["des"])
+async def des_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    decrypted = des_decrypt(content, key)
+    return PlainTextResponse(
+        content=decrypted,
+        headers={
+            "Content-Disposition": f'attachment; filename="{get_name(file)}_decrypted.txt"'
+        },
+    )

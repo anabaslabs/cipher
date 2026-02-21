@@ -189,6 +189,7 @@ export default function Decrypt() {
                       Playfair Cipher (6x6)
                     </SelectItem>
                     <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
+                    <SelectItem value="des">DES</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
