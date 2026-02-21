@@ -85,7 +85,7 @@ async def caesar_report_route(
     recovered_name = (recovered.filename or "").upper()
     algo_suffixes = ["_CC_", "_PC_", "_VC_", "_PFC_", "_HC_", "_DC_"]
     suffix = next((s.strip("_") for s in algo_suffixes if s in recovered_name), "")
-    report_name = f"{name}_{suffix}_report.txt" if suffix else f"{name}_report.txt"
+    report_name = f"{name}_{suffix}_Report.txt" if suffix else f"{name}_Report.txt"
     return PlainTextResponse(
         content=report,
         headers={

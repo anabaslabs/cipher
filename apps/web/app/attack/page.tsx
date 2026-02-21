@@ -107,7 +107,7 @@ export default function Attack() {
         const blob = new Blob([data.guessed_plaintext], { type: "text/plain" });
         files.push({
           url: window.URL.createObjectURL(blob),
-          filename: `${baseName}_attacked.txt`,
+          filename: `${baseName}_Attacked.txt`,
           size: blob.size,
           label: "Attacked",
         });
@@ -124,7 +124,7 @@ export default function Attack() {
         });
         files.push({
           url: window.URL.createObjectURL(blob),
-          filename: `${baseName}_key.txt`,
+          filename: `${baseName}_Key.txt`,
           size: blob.size,
           label: "Key",
         });

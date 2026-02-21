@@ -39,6 +39,15 @@ type DownloadFile = {
   label: string;
 };
 
+const algoSuffixMap: Record<string, string> = {
+  caesar: "_CC",
+  permute: "_PC",
+  vigenere: "_VC",
+  playfair: "_PFC",
+  hill: "_HC",
+  des: "_DC",
+};
+
 export default function Encrypt() {
   const [state, setState] = useState<State>("idle");
   const [formState, setFormState] = useState({
@@ -154,12 +163,13 @@ export default function Encrypt() {
 
       const files: DownloadFile[] = [];
       const baseName = formState.file?.name.replace(/\.[^.]+$/, "") || "file";
+      const suffix = formState.encryptionMethod ? (algoSuffixMap[formState.encryptionMethod] || "") : "";
 
       const encText = response.data.ciphertext || "";
       const encTextBlob = new Blob([encText], { type: "text/plain" });
       files.push({
         url: window.URL.createObjectURL(encTextBlob),
-        filename: `${baseName}_encrypted.txt`,
+        filename: `${baseName}_Encrypted${suffix}.txt`,
         size: encTextBlob.size,
         label: "Encrypted",
       });
@@ -172,7 +182,7 @@ export default function Encrypt() {
         const keyBlob = new Blob([keyStr], { type: "text/plain" });
         files.push({
           url: window.URL.createObjectURL(keyBlob),
-          filename: `${baseName}_key.txt`,
+          filename: `${baseName}_Key${suffix}.txt`,
           size: keyBlob.size,
           label: "Key",
         });

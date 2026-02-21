@@ -135,7 +135,7 @@ export default function Decrypt() {
       const decTextBlob = new Blob([decText], { type: "text/plain" });
       files.push({
         url: window.URL.createObjectURL(decTextBlob),
-        filename: `${baseName}_decrypted.txt`,
+        filename: `${baseName}_Decrypted.txt`,
         size: decTextBlob.size,
         label: "Decrypted",
       });
@@ -148,7 +148,7 @@ export default function Decrypt() {
         const keyBlob = new Blob([keyStr], { type: "text/plain" });
         files.push({
           url: window.URL.createObjectURL(keyBlob),
-          filename: `${baseName}_key.txt`,
+          filename: `${baseName}_Key.txt`,
           size: keyBlob.size,
           label: "Key",
         });
