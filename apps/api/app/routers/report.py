@@ -57,34 +57,19 @@ def compare(original: str, recovered: str) -> str:
     line_a, line_b = original.splitlines(), recovered.splitlines()
 
     overall_pct = matches / n if n else 0
-    alpha_pct = alpha_match / len(alpha) if alpha else 1.0
-    non_alpha_pct = non_alpha_match / len(non_alpha) if non_alpha else 1.0
     word_match = sum(x == y for x, y in zip(word_a, word_b))
-    word_pct = word_match / min(len(word_a), len(word_b)) if word_a and word_b else 0
     line_match = sum(x == y for x, y in zip(line_a, line_b))
-    line_pct = line_match / min(len(line_a), len(line_b)) if line_a and line_b else 0
     length_diff = len(recovered) - len(original)
-    max_len = max(len(original), len(recovered), 1)
-    length_pct = 1.0 - abs(length_diff) / max_len
 
-    score = (
-        overall_pct * 0.25
-        + alpha_pct * 0.25
-        + non_alpha_pct * 0.05
-        + word_pct * 0.20
-        + line_pct * 0.10
-        + length_pct * 0.15
-    )
-
-    if score == 1.0:
+    if overall_pct == 1.0:
         verdict = "PERFECT"
-    elif score >= 0.95:
+    elif overall_pct >= 0.95:
         verdict = "NEAR PERFECT"
-    elif score >= 0.85:
+    elif overall_pct >= 0.85:
         verdict = "NEAR MATCH"
-    elif score >= 0.60:
+    elif overall_pct >= 0.60:
         verdict = "PARTIAL MATCH"
-    elif score >= 0.30:
+    elif overall_pct >= 0.30:
         verdict = "WEAK MATCH"
     else:
         verdict = "FAILED"

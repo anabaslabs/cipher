@@ -23,6 +23,7 @@
 | **Vigenère Cipher**       | Polyalphabetic         | ✅ Supported            | ✅ Supported              |
 | **Playfair Cipher (6x6)** | Alphanumeric           | ✅ Supported            | ❌ Unsupported            |
 | **Hill Cipher (2x2)**     | Numeric Matrix         | ✅ Supported            | ✅ Supported              |
+| **DES**                   | 16-bit Hex             | ✅ Supported            | ❌ Unsupported            |
 
 ## 🛠️ Tech Stack
 
@@ -83,6 +84,9 @@ cipher/
 | `POST` | `/hill/encrypt`     | Encrypt with Hill cipher (2x2)                    |
 | `POST` | `/hill/decrypt`     | Decrypt with Hill cipher (2x2)                    |
 | `POST` | `/hill/attack`      | Frequency analysis attack on Hill cipher (2x2)    |
+| `GET`  | `/des/key`          | Generate a random DES key                         |
+| `POST` | `/des/encrypt`      | Encrypt with DES                                  |
+| `POST` | `/des/decrypt`      | Decrypt with DES                                  |
 
 ## 🚀 Getting Started
 
