@@ -2,13 +2,15 @@
 
 Next.js frontend for the Cipher project.
 
-## Setup
+## 🚀 Getting Started
+
+### Setup
 
 ```bash
 pnpm install
 ```
 
-## Development
+### Development
 
 ```bash
 pnpm dev
@@ -16,7 +18,7 @@ pnpm dev
 turbo dev
 ```
 
-## Build
+### Build
 
 ```bash
 pnpm build
@@ -24,7 +26,7 @@ pnpm build
 turbo build
 ```
 
-## Production
+### Production
 
 ```bash
 pnpm start
@@ -32,6 +34,6 @@ pnpm start
 turbo start
 ```
 
-## Usage
+## 🔮 Usage
 
 The web app runs at [http://localhost:3000](http://localhost:3000).

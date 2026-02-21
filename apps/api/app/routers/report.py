@@ -1,4 +1,3 @@
-import difflib
 from collections import Counter
 
 ROWS = [
@@ -8,6 +7,32 @@ ROWS = [
     ["D", "I", "N", "S", "X", "4", "9"],
     ["E", "J", "O", "T", "Y", "5", "0"],
 ]
+
+def fast_ratio(seq1, seq2, lookahead=15):
+    i = j = matches = 0
+    n1, n2 = len(seq1), len(seq2)
+    
+    while i < n1 and j < n2:
+        if seq1[i] == seq2[j]:
+            matches += 1
+            i += 1
+            j += 1
+        else:
+            found = False
+            for k in range(1, lookahead + 1):
+                if i + k < n1 and seq1[i + k] == seq2[j]:
+                    i += k
+                    found = True
+                    break
+                if j + k < n2 and seq1[i] == seq2[j + k]:
+                    j += k
+                    found = True
+                    break
+            if not found:
+                i += 1
+                j += 1
+                
+    return (2.0 * matches) / (n1 + n2) if (n1 + n2) > 0 else 0.0
 
 def _freq_diff_table(freq_a, freq_b, total_a, total_b):
     def fmt(c):
@@ -41,21 +66,21 @@ def compare(original: str, recovered: str) -> str:
     original = original.upper()
     recovered = recovered.upper()
 
-    overall_pct = difflib.SequenceMatcher(None, original, recovered).ratio()
+    overall_pct = fast_ratio(original, recovered)
 
-    alpha_orig = "".join(x for x in original if x.isascii() and x.isalpha())
-    alpha_recv = "".join(x for x in recovered if x.isascii() and x.isalpha())
-    alpha_pct = difflib.SequenceMatcher(None, alpha_orig, alpha_recv).ratio()
+    alpha_orig = [x for x in original if x.isascii() and x.isalpha()]
+    alpha_recv = [x for x in recovered if x.isascii() and x.isalpha()]
+    alpha_pct = fast_ratio(alpha_orig, alpha_recv)
 
-    non_alpha_orig = "".join(x for x in original if not (x.isascii() and x.isalpha()))
-    non_alpha_recv = "".join(x for x in recovered if not (x.isascii() and x.isalpha()))
-    non_alpha_pct = difflib.SequenceMatcher(None, non_alpha_orig, non_alpha_recv).ratio()
+    non_alpha_orig = [x for x in original if not (x.isascii() and x.isalpha())]
+    non_alpha_recv = [x for x in recovered if not (x.isascii() and x.isalpha())]
+    non_alpha_pct = fast_ratio(non_alpha_orig, non_alpha_recv)
 
     word_a, word_b = original.split(), recovered.split()
     line_a, line_b = original.splitlines(), recovered.splitlines()
 
-    word_pct = difflib.SequenceMatcher(None, word_a, word_b).ratio() if word_a and word_b else 0
-    line_pct = difflib.SequenceMatcher(None, line_a, line_b).ratio() if line_a and line_b else 0
+    word_pct = fast_ratio(word_a, word_b) if word_a and word_b else 0
+    line_pct = fast_ratio(line_a, line_b) if line_a and line_b else 0
     
     length_diff = len(recovered) - len(original)
 

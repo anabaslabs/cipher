@@ -181,8 +181,8 @@ export default function Encrypt() {
           typeof response.data.key === "object" && response.data.key.matrix
             ? JSON.stringify(response.data.key.matrix)
             : typeof response.data.key === "object"
-            ? JSON.stringify(response.data.key)
-            : String(response.data.key);
+              ? JSON.stringify(response.data.key)
+              : String(response.data.key);
         const keyBlob = new Blob([keyStr], { type: "text/plain" });
         files.push({
           url: window.URL.createObjectURL(keyBlob),
@@ -237,7 +237,7 @@ export default function Encrypt() {
                     <SelectItem value="permute">Permutation Cipher</SelectItem>
                     <SelectItem value="vigenere">Vigenère Cipher</SelectItem>
                     <SelectItem value="playfair">
-                      Playfair Cipher (6x6)
+                      Playfair Cipher (8x8)
                     </SelectItem>
                     <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                     <SelectItem value="des">DES</SelectItem>

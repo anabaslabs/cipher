@@ -67,7 +67,7 @@ export default function Home() {
               Vigenère
             </Badge>
             <Badge variant="secondary" className="text-sm border-gray-500">
-              Playfair (6x6)
+              Playfair (8x8)
             </Badge>
             <Badge variant="secondary" className="text-sm border-gray-500">
               Hill (2x2)
