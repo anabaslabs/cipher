@@ -6,33 +6,33 @@ from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
 
 from app.routers.report import compare
 
-from app.routers.caesar_key import generate_key as caesar_generate_key
-from app.routers.caesar_encrypt import caesar_encrypt
-from app.routers.caesar_decrypt import caesar_decrypt
-from app.routers.caesar_attack import caesar_attack
+from app.routers.caesar.key import generate_key as caesar_generate_key
+from app.routers.caesar.encrypt import caesar_encrypt
+from app.routers.caesar.decrypt import caesar_decrypt
+from app.routers.caesar.attack import caesar_attack
 
-from app.routers.permute_key import generate_key as permute_generate_key
-from app.routers.permute_encrypt import encrypt as permute_encrypt
-from app.routers.permute_decrypt import decrypt as permute_decrypt
-from app.routers.permute_attack import frequency_attack
+from app.routers.permute.key import generate_key as permute_generate_key
+from app.routers.permute.encrypt import encrypt as permute_encrypt
+from app.routers.permute.decrypt import decrypt as permute_decrypt
+from app.routers.permute.attack import frequency_attack
 
-from app.routers.vigenere_key import generate_key as vigenere_generate_key
-from app.routers.vigenere_encrypt import encrypt as vigenere_encrypt
-from app.routers.vigenere_decrypt import decrypt as vigenere_decrypt
-from app.routers.vigenere_attack import vigenere_attack
+from app.routers.vigenere.key import generate_key as vigenere_generate_key
+from app.routers.vigenere.encrypt import encrypt as vigenere_encrypt
+from app.routers.vigenere.decrypt import decrypt as vigenere_decrypt
+from app.routers.vigenere.attack import vigenere_attack
 
-from app.routers.playfair_key import generate_key as playfair_generate_key
-from app.routers.playfair_encrypt import encrypt as playfair_encrypt
-from app.routers.playfair_decrypt import decrypt as playfair_decrypt
+from app.routers.playfair.key import generate_key as playfair_generate_key
+from app.routers.playfair.encrypt import encrypt as playfair_encrypt
+from app.routers.playfair.decrypt import decrypt as playfair_decrypt
 
-from app.routers.hill_key import generate_key as hill_generate_key
-from app.routers.hill_encrypt import encrypt as hill_encrypt
-from app.routers.hill_decrypt import decrypt as hill_decrypt
-from app.routers.hill_attack import hill_attack
+from app.routers.hill.key import generate_key as hill_generate_key
+from app.routers.hill.encrypt import encrypt as hill_encrypt
+from app.routers.hill.decrypt import decrypt as hill_decrypt
+from app.routers.hill.attack import hill_attack
 
-from app.routers.des_key import generate_key as des_generate_key
-from app.routers.des_encrypt import encrypt as des_encrypt
-from app.routers.des_decrypt import decrypt as des_decrypt
+from app.routers.des.key import generate_key as des_generate_key
+from app.routers.des.encrypt import encrypt as des_encrypt
+from app.routers.des.decrypt import decrypt as des_decrypt
 
 
 router = APIRouter()
