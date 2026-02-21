@@ -76,4 +76,7 @@ def decrypt(ciphertext: str, key: str, meta: dict) -> str:
         else:
             output[orig_idx] = '?'
 
-    return ''.join(output)
+    return {
+        "key": key,
+        "plaintext": ''.join(output)
+    }

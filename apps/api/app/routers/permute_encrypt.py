@@ -13,4 +13,7 @@ def encrypt(text: str, key: str) -> str:
                 result += enc[ch.upper()].lower()
         else:
             result += ch
-    return result
+    return {
+        "key": key,
+        "ciphertext": result
+    }

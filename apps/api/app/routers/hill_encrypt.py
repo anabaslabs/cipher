@@ -36,4 +36,7 @@ def encrypt(text: str, key: dict) -> str:
         result.append(encrypted_alpha[alpha_idx])
         alpha_idx += 1
 
-    return "".join(result)
+    return {
+        "key": key,
+        "ciphertext": "".join(result)
+    }

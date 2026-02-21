@@ -16,4 +16,7 @@ def encrypt(plain: str, key: str) -> str:
         else:
             result += ch
 
-    return result
+    return {
+        "key": key,
+        "ciphertext": result
+    }

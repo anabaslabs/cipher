@@ -12,4 +12,7 @@ def decrypt(b64_ciphertext: str, hex_key: str) -> str:
     decrypted_padded = cipher.decrypt(ciphertext)
     plaintext_bytes = unpad(decrypted_padded, DES.block_size)
 
-    return plaintext_bytes.decode("utf-8")
+    return {
+        "key": hex_key,
+        "plaintext": plaintext_bytes.decode("utf-8")
+    }

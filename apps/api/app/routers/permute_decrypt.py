@@ -13,4 +13,7 @@ def decrypt(text: str, key: str) -> str:
                 result += dec[ch.upper()].lower()
         else:
             result += ch
-    return result
+    return {
+        "key": key,
+        "plaintext": result
+    }

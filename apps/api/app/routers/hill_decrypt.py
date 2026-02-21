@@ -35,4 +35,7 @@ def decrypt(text: str, key: dict) -> str:
         else:
             result.append(ch)
 
-    return "".join(result)
+    return {
+        "key": key,
+        "plaintext": "".join(result)
+    }

@@ -92,4 +92,8 @@ def encrypt(plaintext: str, key: str) -> tuple[str, dict]:
         "original_length": len(plaintext)
     }
 
-    return encrypted_body, meta
+    return {
+        "key": key,
+        "ciphertext": encrypted_body,
+        "meta": meta
+    }

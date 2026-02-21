@@ -32,6 +32,13 @@ import {
   IconX,
 } from "@tabler/icons-react";
 
+type DownloadFile = {
+  url: string;
+  filename: string;
+  size: number;
+  label: string;
+};
+
 export default function Decrypt() {
   const [state, setState] = useState<State>("idle");
   const [formState, setFormState] = useState({
@@ -39,11 +46,7 @@ export default function Decrypt() {
     decryptionMethod: null as string | null,
     decryptionKey: null as string | null,
   });
-  const [decryptedFile, setDecryptedFile] = useState<{
-    url: string;
-    filename: string;
-    size: number;
-  } | null>(null);
+  const [downloadFiles, setDownloadFiles] = useState<DownloadFile[]>([]);
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
   const [keyCopied, setKeyCopied] = useState(false);
   const clearFilesRef = useRef<(() => void) | null>(null);
@@ -67,9 +70,7 @@ export default function Decrypt() {
   }, []);
 
   const handleClear = useCallback(() => {
-    if (decryptedFile) {
-      window.URL.revokeObjectURL(decryptedFile.url);
-    }
+    downloadFiles.forEach((f) => window.URL.revokeObjectURL(f.url));
     if (clearFilesRef.current) {
       clearFilesRef.current();
     }
@@ -79,16 +80,14 @@ export default function Decrypt() {
       decryptionMethod: null,
       decryptionKey: null,
     });
-    setDecryptedFile(null);
+    setDownloadFiles([]);
     setTimeTaken(null);
-  }, [decryptedFile]);
+  }, [downloadFiles]);
 
-  const handleDownload = () => {
-    if (!decryptedFile) return;
-
+  const handleDownload = (dlFile: DownloadFile) => {
     const link = document.createElement("a");
-    link.href = decryptedFile.url;
-    link.setAttribute("download", decryptedFile.filename);
+    link.href = dlFile.url;
+    link.setAttribute("download", dlFile.filename);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -125,23 +124,37 @@ export default function Decrypt() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          responseType: "blob",
         }
       );
       console.log(response);
 
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
+      const files: DownloadFile[] = [];
+      const baseName = formState.file?.name.replace(/\.[^.]+$/, "") || "file";
 
-      const contentDisposition = response.headers["content-disposition"];
-      let filename = `decrypted_${formState.file?.name || "file"}`;
-      if (contentDisposition) {
-        filename = contentDisposition
-          .split(";")[1]
-          .split("=")[1]
-          .replace(/"/g, "");
+      const decText = response.data.plaintext || "";
+      const decTextBlob = new Blob([decText], { type: "text/plain" });
+      files.push({
+        url: window.URL.createObjectURL(decTextBlob),
+        filename: `${baseName}_decrypted.txt`,
+        size: decTextBlob.size,
+        label: "Decrypted",
+      });
+
+      if (response.data.key !== undefined && response.data.key !== null) {
+        const keyStr =
+          typeof response.data.key === "object"
+            ? JSON.stringify(response.data.key)
+            : String(response.data.key);
+        const keyBlob = new Blob([keyStr], { type: "text/plain" });
+        files.push({
+          url: window.URL.createObjectURL(keyBlob),
+          filename: `${baseName}_key.txt`,
+          size: keyBlob.size,
+          label: "Key",
+        });
       }
-      setDecryptedFile({ url, filename, size: blob.size });
+
+      setDownloadFiles(files);
 
       const endTime = performance.now();
       setTimeTaken((endTime - startTime) / 1000);
@@ -282,42 +295,40 @@ export default function Decrypt() {
           </div>
         </div>
 
-        {state === "done" && (
+        {state === "done" && downloadFiles.length > 0 && (
           <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
             <div className="flex flex-col justify-center items-start gap-4 text-sm text-muted-foreground w-full">
-              {decryptedFile && (
-                <div className="flex flex-row flex-wrap justify-start items-center gap-1">
-                  <span className="flex justify-center items-center gap-1 leading-none">
-                    <IconKey
-                      className="size-4 inline-block"
-                      aria-hidden="true"
-                    />
-                    Decryption Key:
-                  </span>
-                  <span className="flex justify-center items-center gap-1.5 leading-none">
-                    {formState.decryptionKey}
-                    <Button
-                      size="icon-lg"
-                      variant="ghost"
-                      className="size-4"
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          formState.decryptionKey || ""
-                        );
-                        setKeyCopied(true);
-                        setTimeout(() => setKeyCopied(false), 2000);
-                      }}
-                      aria-label="Copy key to clipboard"
-                    >
-                      {keyCopied ? (
-                        <IconCheck className="size-4" aria-hidden="true" />
-                      ) : (
-                        <IconCopy className="size-4" aria-hidden="true" />
-                      )}
-                    </Button>
-                  </span>
-                </div>
-              )}
+              <div className="flex flex-row flex-wrap justify-start items-center gap-1">
+                <span className="flex justify-center items-center gap-1 leading-none">
+                  <IconKey
+                    className="size-4 inline-block"
+                    aria-hidden="true"
+                  />
+                  Decryption Key:
+                </span>
+                <span className="flex justify-center items-center gap-1.5 leading-none">
+                  {formState.decryptionKey}
+                  <Button
+                    size="icon-lg"
+                    variant="ghost"
+                    className="size-4"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        formState.decryptionKey || ""
+                      );
+                      setKeyCopied(true);
+                      setTimeout(() => setKeyCopied(false), 2000);
+                    }}
+                    aria-label="Copy key to clipboard"
+                  >
+                    {keyCopied ? (
+                      <IconCheck className="size-4" aria-hidden="true" />
+                    ) : (
+                      <IconCopy className="size-4" aria-hidden="true" />
+                    )}
+                  </Button>
+                </span>
+              </div>
 
               {timeTaken !== null && (
                 <div className="flex items-center gap-1 leading-none">
@@ -329,25 +340,28 @@ export default function Decrypt() {
                 </div>
               )}
 
-              {decryptedFile && (
-                <div className="flex items-center gap-1 leading-none">
+              {downloadFiles.map((dlFile) => (
+                <div key={dlFile.filename} className="flex items-center gap-1 leading-none">
                   <IconFileInfo
                     className="size-4 inline-block"
                     aria-hidden="true"
                   />
-                  File Size: {formatBytes(decryptedFile.size)}
+                  {dlFile.label} File Size: {formatBytes(dlFile.size)}
                 </div>
-              )}
+              ))}
             </div>
-            <div className="flex flex-col justify-center items-center gap-6 w-full">
-              <Button
-                className="w-full leading-none"
-                variant="outline"
-                onClick={handleDownload}
-              >
-                <IconDownload className="size-4" aria-hidden="true" />
-                {decryptedFile?.filename || "N/A"}
-              </Button>
+            <div className="flex flex-col justify-center items-center gap-4 w-full">
+              {downloadFiles.map((dlFile) => (
+                <Button
+                  key={dlFile.filename}
+                  className="w-full leading-none"
+                  variant="outline"
+                  onClick={() => handleDownload(dlFile)}
+                >
+                  <IconDownload className="size-4" aria-hidden="true" />
+                  {dlFile.filename}
+                </Button>
+              ))}
 
               <Button
                 className="text-red-500 hover:text-red-400 w-full leading-none"
