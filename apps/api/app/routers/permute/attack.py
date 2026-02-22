@@ -189,7 +189,7 @@ def _contrib_wd(km, cw, wlen):
     return w in CW_SETS[wlen]
 
 
-def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8):
+def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8, progress_callback=None):
     total, unigrams, bigrams, trigrams, word_counts = precomputed_data
     bg_idx, tg_idx, wd_idx = _build_letter_index(unigrams, bigrams, trigrams, word_counts)
 
@@ -198,7 +198,9 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8):
 
     ks = list(ALPHA)
 
-    for _ in range(restarts):
+    for restart_i in range(restarts):
+        if progress_callback:
+            progress_callback(restart_i, restarts, "Hill climbing...")
         cur = best.copy()
 
         for _ in range(3):
@@ -293,15 +295,23 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8):
     return best, bs
 
 
-def frequency_attack(ct: str, restarts: int = 10) -> dict:
+def frequency_attack(ct: str, restarts: int = 10, progress_callback=None) -> dict:
+    if progress_callback:
+        progress_callback(0, restarts + 2, "Precomputing statistics...")
     precomputed_data = precompute(ct)
+    if progress_callback:
+        progress_callback(1, restarts + 2, "Seeding initial key...")
     km = hint_seed(ct, init_key(ct))
-    km, best_score = hill_climb(ct, km, precomputed_data, iters=10000, restarts=restarts)
+    km, best_score = hill_climb(ct, km, precomputed_data, iters=10000, restarts=restarts,
+                                progress_callback=lambda i, t, s: progress_callback(i + 2, t + 2, s) if progress_callback else None)
     km = hint_seed(ct, km)
     plaintext = apply_key(ct, km)
 
     inv = {plain: cipher for cipher, plain in km.items()}
     key_str = "".join(inv.get(c, "?") for c in ALPHA)
+
+    if progress_callback:
+        progress_callback(restarts + 2, restarts + 2, "Complete")
 
     return {
         "guessed_key": key_str,

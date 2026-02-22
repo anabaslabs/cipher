@@ -88,17 +88,21 @@ def reduce_key(key: str) -> str:
     return key
 
 
-def vigenere_attack(ciphertext: str) -> dict:
+def vigenere_attack(ciphertext: str, progress_callback=None) -> dict:
     cipher_alpha = "".join(c for c in ciphertext.upper() if c.isascii() and c.isalpha())
     if not cipher_alpha:
         return {"guessed_key": "", "guessed_plaintext": ""}
 
+    if progress_callback:
+        progress_callback(0, 4, "Finding key lengths...")
     top_lengths = get_top_key_lengths(cipher_alpha)
     best_key = ""
     best_text = ""
     best_score = -1
 
-    for length in top_lengths:
+    for idx, length in enumerate(top_lengths):
+        if progress_callback:
+            progress_callback(idx + 1, len(top_lengths) + 1, f"Trying key length {length}...")
         candidate_key = frequency_attack_chi_square(cipher_alpha, length)
         candidate_text = decrypt(ciphertext, candidate_key)
         english_score = score_plaintext("".join(c for c in candidate_text if c.isascii() and c.isalpha()))
@@ -107,6 +111,9 @@ def vigenere_attack(ciphertext: str) -> dict:
             best_score = english_score
             best_key = candidate_key
             best_text = candidate_text
+
+    if progress_callback:
+        progress_callback(len(top_lengths) + 1, len(top_lengths) + 1, "Complete")
 
     return {
         "guessed_key": reduce_key(best_key),

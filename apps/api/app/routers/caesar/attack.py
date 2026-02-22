@@ -31,13 +31,19 @@ def chi_squared(text: str) -> float:
     )
 
 
-def caesar_attack(text: str) -> dict:
+def caesar_attack(text: str, progress_callback=None) -> dict:
+    if progress_callback:
+        progress_callback(0, 26, "Testing all shifts...")
+
     results = sorted(
         [(k, chi_squared(caesar_decrypt(text, k)), caesar_decrypt(text, k)) for k in range(26)],
         key=lambda x: x[1],
     )
 
     best_key, best_score, plaintext = results[0]
+
+    if progress_callback:
+        progress_callback(26, 26, "Complete")
 
     return {
         "guessed_key": best_key,
