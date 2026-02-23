@@ -53,6 +53,7 @@ def score_text(text: str) -> float:
 
 
 def hill_attack(ciphertext: str, progress_callback=None) -> dict:
+    import time
     cipher_nums = [ord(ch) - 65 for ch in ciphertext.upper() if ch.isascii() and ch.isalpha()]
     sample_len = min(200, len(cipher_nums))
 
@@ -60,12 +61,15 @@ def hill_attack(ciphertext: str, progress_callback=None) -> dict:
     best_key = None
     total_iters = 26 ** 4
     iter_count = 0
-    report_interval = total_iters // 20
+    report_interval = max(total_iters // 200, 1)
 
     for a, b, c, d in itertools.product(range(26), repeat=4):
         iter_count += 1
         if progress_callback and iter_count % report_interval == 0:
-            progress_callback(iter_count, total_iters, "Brute-forcing key matrix...")
+            current_matrix = f"[[{a}, {b}], [{c}, {d}]]"
+            progress_callback(iter_count, total_iters, f"Testing matrix {current_matrix}...")
+            time.sleep(0.0001)
+            
         det = (a * d - b * c) % 26
         if math.gcd(det, 26) != 1:
             continue

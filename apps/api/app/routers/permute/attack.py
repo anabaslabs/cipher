@@ -190,6 +190,7 @@ def _contrib_wd(km, cw, wlen):
 
 
 def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8, progress_callback=None):
+    import time
     total, unigrams, bigrams, trigrams, word_counts = precomputed_data
     bg_idx, tg_idx, wd_idx = _build_letter_index(unigrams, bigrams, trigrams, word_counts)
 
@@ -200,7 +201,9 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8, progress_callb
 
     for restart_i in range(restarts):
         if progress_callback:
-            progress_callback(restart_i, restarts, "Hill climbing...")
+            progress_callback(restart_i * iters, restarts * iters, f"Hill climbing (Restart {restart_i + 1}/{restarts})...")
+            time.sleep(0.1)
+            
         cur = best.copy()
 
         for _ in range(3):
@@ -214,6 +217,12 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8, progress_callb
         while improved and it < iters:
             improved = False
             it += 1
+            
+            if progress_callback and it % max(iters // 20, 1) == 0:
+                current_overall_progress = (restart_i * iters) + it
+                total_overall_progress = restarts * iters
+                progress_callback(current_overall_progress, total_overall_progress, f"Hill climbing (Restart {restart_i + 1}/{restarts}, Iteration {it})...")
+                time.sleep(0.001)
 
             for i in range(26):
                 for j in range(i + 1, 26):
