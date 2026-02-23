@@ -122,7 +122,7 @@ def vigenere_attack(ciphertext: str, progress_callback=None) -> dict:
                 
                 shifts_tested += 1
                 if progress_callback and shifts_tested % 5 == 0:
-                    progress_callback(shifts_tested, total_shifts_to_test, f"Testing key length {length} (Shift {shift + 1}/26 for char {i + 1})...")
+                    progress_callback(shifts_tested, total_shifts_to_test, f"Testing key length {length} (Shift {shift + 1}/26)...")
                     time.sleep(0.01)
 
                 chi_sq = 0

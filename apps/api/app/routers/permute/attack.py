@@ -201,7 +201,7 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8, progress_callb
 
     for restart_i in range(restarts):
         if progress_callback:
-            progress_callback(restart_i * iters, restarts * iters, f"Hill climbing (Restart {restart_i + 1}/{restarts})...")
+            progress_callback(float(restart_i), float(restarts), f"Hill climbing (Restart {restart_i + 1}/{restarts})...")
             time.sleep(0.1)
             
         cur = best.copy()
@@ -219,9 +219,9 @@ def hill_climb(ct, km, precomputed_data, iters=10000, restarts=8, progress_callb
             it += 1
             
             if progress_callback and it % max(iters // 20, 1) == 0:
-                current_overall_progress = (restart_i * iters) + it
-                total_overall_progress = restarts * iters
-                progress_callback(current_overall_progress, total_overall_progress, f"Hill climbing (Restart {restart_i + 1}/{restarts}, Iteration {it})...")
+                # Add the partial progress of the current restart's iterations
+                partial_restart = it / iters
+                progress_callback(restart_i + partial_restart, restarts, f"Hill climbing (Restart {restart_i + 1}/{restarts}, Iteration {it})...")
                 time.sleep(0.001)
 
             for i in range(26):
@@ -312,7 +312,7 @@ def frequency_attack(ct: str, restarts: int = 10, progress_callback=None) -> dic
         progress_callback(1, restarts + 2, "Seeding initial key...")
     km = hint_seed(ct, init_key(ct))
     km, best_score = hill_climb(ct, km, precomputed_data, iters=10000, restarts=restarts,
-                                progress_callback=lambda i, t, s: progress_callback(i + 2, t + 2, s) if progress_callback else None)
+                                progress_callback=lambda i, t, s: progress_callback(i + 2.0, float(t + 2), s) if progress_callback else None)
     km = hint_seed(ct, km)
     plaintext = apply_key(ct, km)
 
