@@ -36,6 +36,10 @@ from app.routers.des.key import generate_key as des_generate_key
 from app.routers.des.encrypt import encrypt as des_encrypt
 from app.routers.des.decrypt import decrypt as des_decrypt
 
+from app.routers.aes.key import generate_key as aes_generate_key
+from app.routers.aes.encrypt import encrypt as aes_encrypt
+from app.routers.aes.decrypt import decrypt as aes_decrypt
+
 from app.routers.rc5.key import generate_key as rc5_generate_key
 from app.routers.rc5.encrypt import encrypt as rc5_encrypt
 from app.routers.rc5.decrypt import decrypt as rc5_decrypt
@@ -346,6 +350,27 @@ async def des_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     decrypted = des_decrypt(content, key)
     return JSONResponse(content=decrypted)
 
+
+# AES Key
+@router.get("/aes/key", tags=["aes"])
+async def aes_key_route():
+    return {"key": aes_generate_key()}
+
+
+# AES Encryption
+@router.post("/aes/encrypt", tags=["aes"])
+async def aes_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    encrypted = aes_encrypt(content, key)
+    return JSONResponse(content=encrypted)
+
+
+# AES Decryption
+@router.post("/aes/decrypt", tags=["aes"])
+async def aes_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    decrypted = aes_decrypt(content, key)
+    return JSONResponse(content=decrypted)
 
 
 # RC5 Key

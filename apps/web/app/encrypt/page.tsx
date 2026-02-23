@@ -46,6 +46,7 @@ const algoSuffixMap: Record<string, string> = {
   playfair: "_PFC",
   hill: "_HC",
   des: "_DC",
+  aes: "_AES",
   rc5: "_RC5",
 };
 
@@ -242,6 +243,7 @@ export default function Encrypt() {
                     </SelectItem>
                     <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                     <SelectItem value="des">DES</SelectItem>
+                    <SelectItem value="aes">AES-128</SelectItem>
                     <SelectItem value="rc5">RC5</SelectItem>
                   </SelectGroup>
                 </SelectContent>
