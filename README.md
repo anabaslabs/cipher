@@ -1,6 +1,10 @@
-<h1 align="center"><b>Cipher</b></h1>
+<h1 align="center">
+  <img src="cipher.png" alt="Cipher Logo" width="64">
+  <br>
+  <b>Cipher</b>
+</h1>
 
-<p align="center">
+<p>
   <b>Cipher</b> is your all-in-one toolkit for classic cryptography. Built with a <b>Next.js</b> frontend and a <b>FastAPI</b> backend, it lets you <b>Encrypt</b>, <b>Decrypt</b>, run <b>Frequency Analysis Attacks</b>, and generate detailed <b>Reports</b> — all from a clean & modern interface.
 </p>
 
@@ -23,7 +27,9 @@
 | **Vigenère Cipher**       | Polyalphabetic         | ✅ Supported            | ✅ Supported              |
 | **Playfair Cipher (8x8)** | Alphanumeric           | ✅ Supported            | ❌ Unsupported            |
 | **Hill Cipher (2x2)**     | Numeric Matrix         | ✅ Supported            | ✅ Supported              |
-| **DES**                   | 16-bit Hex             | ✅ Supported            | ❌ Unsupported            |
+| **DES**                   | 8 bytes Hex            | ✅ Supported            | ❌ Unsupported            |
+| **AES-128**               | 16 bytes Hex           | ✅ Supported            | ⚠️ Impossible             |
+| **RC5**                   | 16 bytes Hex           | ✅ Supported            | ⚠️ Impossible             |
 
 ## 🛠️ Tech Stack
 
@@ -139,8 +145,8 @@ turbo start
 
 ## 👥 Contributors
 
-<a href="https://github.com/itskdhere"><img src="https://avatars.githubusercontent.com/u/86651039?v=4" width="48" height="48" style="border-radius:50%" alt="itskdhere"></a>&nbsp;
 <a href="https://github.com/saptarshiroy39"><img src="https://avatars.githubusercontent.com/u/138118143?v=4" width="48" height="48" style="border-radius:50%" alt="saptarshiroy39"></a>
+<a href="https://github.com/itskdhere"><img src="https://avatars.githubusercontent.com/u/86651039?v=4" width="48" height="48" style="border-radius:50%" alt="itskdhere"></a>&nbsp;
 
 <p align="center">
   <a href="https://youtu.be/EA4DipdhpV8">🙂</a>

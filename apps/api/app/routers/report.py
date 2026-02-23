@@ -8,7 +8,12 @@ ROWS = [
     ["E", "J", "O", "T", "Y", "5", "0"],
 ]
 
-def fast_ratio(seq1, seq2, lookahead=15):
+def fast_ratio(seq1, seq2, lookahead=10):
+    if not seq1 and not seq2:
+        return 1.0
+    if not seq1 or not seq2:
+        return 0.0
+
     i = j = matches = 0
     n1, n2 = len(seq1), len(seq2)
     
@@ -32,7 +37,7 @@ def fast_ratio(seq1, seq2, lookahead=15):
                 i += 1
                 j += 1
                 
-    return (2.0 * matches) / (n1 + n2) if (n1 + n2) > 0 else 0.0
+    return (2.0 * matches) / (n1 + n2)
 
 def _freq_diff_table(freq_a, freq_b, total_a, total_b):
     def fmt(c):
@@ -66,54 +71,68 @@ def compare(original: str, recovered: str) -> str:
     original = original.upper()
     recovered = recovered.upper()
 
-    overall_pct = fast_ratio(original, recovered)
+    # 1. Overall Character Match
+    overall_pct = fast_ratio(original, recovered, lookahead=10)
 
-    alpha_orig = [x for x in original if x.isascii() and x.isalpha()]
-    alpha_recv = [x for x in recovered if x.isascii() and x.isalpha()]
-    alpha_pct = fast_ratio(alpha_orig, alpha_recv)
+    # 2. Alpha / Non-Alpha Match
+    alpha_orig = [x for x in original if x.isalpha()]
+    alpha_recv = [x for x in recovered if x.isalpha()]
+    alpha_pct = fast_ratio(alpha_orig, alpha_recv, lookahead=10)
 
-    non_alpha_orig = [x for x in original if not (x.isascii() and x.isalpha())]
-    non_alpha_recv = [x for x in recovered if not (x.isascii() and x.isalpha())]
-    non_alpha_pct = fast_ratio(non_alpha_orig, non_alpha_recv)
+    non_alpha_orig = [x for x in original if not x.isalpha()]
+    non_alpha_recv = [x for x in recovered if not x.isalpha()]
+    non_alpha_pct = fast_ratio(non_alpha_orig, non_alpha_recv, lookahead=10)
 
+    # 3. Word / Line Match
     word_a, word_b = original.split(), recovered.split()
     line_a, line_b = original.splitlines(), recovered.splitlines()
 
-    word_pct = fast_ratio(word_a, word_b) if word_a and word_b else 0
-    line_pct = fast_ratio(line_a, line_b) if line_a and line_b else 0
+    word_match = sum(x == y for x, y in zip(word_a, word_b))
+    word_pct = word_match / min(len(word_a), len(word_b)) if word_a and word_b else (1.0 if not word_a and not word_b else 0.0)
     
-    length_diff = len(recovered) - len(original)
+    line_match = sum(x == y for x, y in zip(line_a, line_b))
+    line_pct = line_match / min(len(line_a), len(line_b)) if line_a and line_b else (1.0 if not line_a and not line_b else 0.0)
 
-    if overall_pct == 1.0:
+    # 4. Length Penalty
+    length_diff = len(recovered) - len(original)
+    max_len = max(len(original), len(recovered), 1)
+    length_pct = 1.0 - (abs(length_diff) / max_len)
+
+    # 5. Calculate Final Weighted Score
+    score = (
+        overall_pct * 0.25
+        + alpha_pct * 0.25
+        + non_alpha_pct * 0.05
+        + word_pct * 0.20
+        + line_pct * 0.10
+        + length_pct * 0.15
+    )
+
+    # 6. Determine Verdict
+    if score >= 0.99:
         verdict = "PERFECT"
-    elif overall_pct >= 0.95:
+    elif score >= 0.95:
         verdict = "NEAR PERFECT"
-    elif overall_pct >= 0.85:
+    elif score >= 0.85:
         verdict = "NEAR MATCH"
-    elif overall_pct >= 0.60:
+    elif score >= 0.60:
         verdict = "PARTIAL MATCH"
-    elif overall_pct >= 0.30:
+    elif score >= 0.30:
         verdict = "WEAK MATCH"
     else:
         verdict = "FAILED"
 
-    report = []
-    report.append("======== COMPARISON REPORT ========\n")
-    report.append(f"VERDICT: {verdict}\n")
-
-    report.append(f"Original File Length: {len(original)}")
-    report.append(f"Decrypted File Length: {len(recovered)}")
-    report.append(f"Length difference: {'+' + str(length_diff) if length_diff > 0 else str(length_diff)}\n")
-
-    report.append(f"Overall accuracy: {overall_pct * 100:.2f}%")
-    report.append(
-        f"Alphabet accuracy: {alpha_pct * 100:.2f}%" if alpha_orig
-        else "Alphabet accuracy: N/A"
-    )
-    report.append(
-        f"Non-alpha accuracy: {non_alpha_pct * 100:.2f}%" if non_alpha_orig
-        else "Non-alpha accuracy: N/A"
-    )
+    # 7. Generate Output Report
+    report = [
+        "======== COMPARISON REPORT ========\n",
+        f"VERDICT: {verdict}\n",
+        f"Original File Length: {len(original)}",
+        f"Decrypted File Length: {len(recovered)}",
+        f"Length difference: {'+' + str(length_diff) if length_diff > 0 else str(length_diff)}\n",
+        f"Overall accuracy: {overall_pct * 100:.2f}%",
+        f"Alphabet accuracy: {alpha_pct * 100:.2f}%" if alpha_orig else "Alphabet accuracy: N/A",
+        f"Non-alpha accuracy: {non_alpha_pct * 100:.2f}%" if non_alpha_orig else "Non-alpha accuracy: N/A"
+    ]
 
     if word_a and word_b:
         report.append(f"\nWord accuracy: {word_pct * 100:.2f}%")
@@ -128,17 +147,19 @@ def compare(original: str, recovered: str) -> str:
     sorted_a = ''.join(c for c, _ in freq_a.most_common())
     sorted_b = ''.join(c for c, _ in freq_b.most_common())
 
-    report.append("\nCharacter string in descending by count:")
-    report.append(f"{'Original File:'.ljust(16)}{sorted_a}")
-    report.append(f"{'Decrypted File:'.ljust(16)}{sorted_b}")
+    report.extend([
+        "\nCharacter string in descending by count:",
+        f"{'Original File:'.ljust(16)}{sorted_a}",
+        f"{'Decrypted File:'.ljust(16)}{sorted_b}",
 
-    report.append("\nCharacter frequency diff:")
-    report.append(_freq_diff_table(freq_a, freq_b, total_a, total_b))
+        "\nCharacter frequency diff:",
+        _freq_diff_table(freq_a, freq_b, total_a, total_b),
 
-    report.append("\nCharacter Count in Original File:")
-    report.append(_count_table(freq_a))
+        "\nCharacter Count in Original File:",
+        _count_table(freq_a),
 
-    report.append("\nCharacter Count in Decrypted File:")
-    report.append(_count_table(freq_b))
+        "\nCharacter Count in Decrypted File:",
+        _count_table(freq_b)
+    ])
 
     return "\n".join(report)

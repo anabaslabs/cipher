@@ -13,6 +13,7 @@ import {
 } from "@workspace/ui/components/select";
 import { Field, FieldLabel } from "@workspace/ui/components/field";
 import { Button } from "@workspace/ui/components/button";
+import { Progress } from "@workspace/ui/components/progress";
 import { formatBytes } from "@/hooks/use-file-upload";
 import type { State } from "@/components/FileSelector";
 import FileSelector from "@/components/FileSelector";
@@ -44,6 +45,8 @@ export default function Attack() {
   const [guessedKey, setGuessedKey] = useState<string | null>(null);
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
   const [keyCopied, setKeyCopied] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [progressStatus, setProgressStatus] = useState("");
   const clearFilesRef = useRef<(() => void) | null>(null);
 
   const playSound = () => {
@@ -75,6 +78,8 @@ export default function Attack() {
     setDownloadFiles([]);
     setGuessedKey(null);
     setTimeTaken(null);
+    setProgress(0);
+    setProgressStatus("");
   }, [downloadFiles]);
 
   const handleAttack = async () => {
@@ -86,19 +91,70 @@ export default function Attack() {
     formData.append("file", file);
 
     setState("processing");
+    setProgress(0);
+    setProgressStatus("Starting attack...");
     const startTime = performance.now();
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.post(
-        `${apiUrl}/${cipherMethod}/attack`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const response = await fetch(`${apiUrl}/${cipherMethod}/attack/stream`, {
+        method: "POST",
+        body: formData,
+      });
 
-      const data = response.data;
+      if (!response.ok || !response.body) {
+        throw new Error("Stream failed");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalData: Record<string, unknown> | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              if (parsed.progress >= 0) {
+                setProgress(parsed.progress);
+              }
+              if (parsed.status) {
+                setProgressStatus(parsed.status);
+              }
+              if (parsed.result) {
+                finalData = parsed.result;
+              }
+              if (parsed.error) {
+                throw new Error(parsed.error);
+              }
+            } catch (parseErr) {
+              if (
+                parseErr instanceof Error &&
+                parseErr.message !== "Stream failed"
+              ) {
+              }
+            }
+          }
+        }
+      }
+
+      if (!finalData) {
+        throw new Error("No result received");
+      }
+
+      const data = finalData as {
+        guessed_plaintext?: string;
+        guessed_key?: unknown;
+      };
       const files: DownloadFile[] = [];
-
       const baseName = file.name.replace(/\.[^.]+$/, "");
 
       if (data.guessed_plaintext) {
@@ -112,8 +168,11 @@ export default function Attack() {
       }
       if (data.guessed_key !== undefined && data.guessed_key !== null) {
         const keyStr =
-          typeof data.guessed_key === "object" && data.guessed_key.matrix
-            ? JSON.stringify(data.guessed_key.matrix)
+          typeof data.guessed_key === "object" &&
+          (data.guessed_key as Record<string, unknown>).matrix
+            ? JSON.stringify(
+                (data.guessed_key as Record<string, unknown>).matrix
+              )
             : typeof data.guessed_key === "object"
               ? JSON.stringify(data.guessed_key)
               : String(data.guessed_key);
@@ -131,6 +190,7 @@ export default function Attack() {
 
       setDownloadFiles(files);
       setTimeTaken((performance.now() - startTime) / 1000);
+      setProgress(100);
       playCompleteSound();
       setState("done");
     } catch (error) {
@@ -160,7 +220,7 @@ export default function Attack() {
             className="w-full"
             onClearFilesReady={handleSetClear}
           />
-          <div className="flex flex-col justify-center items-center gap-6 md:gap-37 w-full">
+          <div className="flex flex-col justify-evenly items-center gap-6 md:gap-13 w-full">
             <Field>
               <FieldLabel htmlFor="cipher-method-select">
                 Cipher Method
@@ -183,6 +243,20 @@ export default function Attack() {
                 </SelectContent>
               </Select>
             </Field>
+
+            {
+              <div className="flex flex-col gap-2 w-full h-8">
+                {(state === "processing" || state === "done") && (
+                  <>
+                    <div className="flex justify-between items-center text-xs text-muted-foreground">
+                      <span>{progressStatus}</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <Progress value={progress} className="h-2" />
+                  </>
+                )}
+              </div>
+            }
 
             <Field className="grid grid-cols-5 mt-2">
               <Button
@@ -294,12 +368,16 @@ export default function Attack() {
               {downloadFiles.map((dlFile) => (
                 <Button
                   key={dlFile.filename}
+                  title={dlFile.filename}
                   className="w-full leading-none"
                   variant="outline"
                   onClick={() => handleDownload(dlFile)}
                 >
-                  <IconDownload className="size-4" aria-hidden="true" />
-                  {dlFile.filename}
+                  <IconDownload
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">{dlFile.filename}</span>
                 </Button>
               ))}
 

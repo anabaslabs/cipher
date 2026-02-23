@@ -88,18 +88,56 @@ def reduce_key(key: str) -> str:
     return key
 
 
-def vigenere_attack(ciphertext: str) -> dict:
+def vigenere_attack(ciphertext: str, progress_callback=None) -> dict:
+    import time
     cipher_alpha = "".join(c for c in ciphertext.upper() if c.isascii() and c.isalpha())
     if not cipher_alpha:
         return {"guessed_key": "", "guessed_plaintext": ""}
 
+    if progress_callback:
+        progress_callback(0, 4, "Finding key lengths...")
     top_lengths = get_top_key_lengths(cipher_alpha)
     best_key = ""
     best_text = ""
     best_score = -1
 
-    for length in top_lengths:
-        candidate_key = frequency_attack_chi_square(cipher_alpha, length)
+    total_shifts_to_test = sum(length * 26 for length in top_lengths)
+    shifts_tested = 0
+
+    for idx, length in enumerate(top_lengths):
+        if progress_callback:
+            progress_callback(shifts_tested, total_shifts_to_test, f"Trying key length {length}...")
+            time.sleep(0.1)
+            
+        key = []
+        for i in range(length):
+            subseq = cipher_alpha[i::length]
+            n = len(subseq)
+            counts = [0] * 26
+            for c in subseq:
+                counts[ord(c) - 65] += 1
+            best_shift = 0
+            best_chi_sq = float("inf")
+            for shift in range(26):
+                
+                shifts_tested += 1
+                if progress_callback and shifts_tested % 5 == 0:
+                    progress_callback(shifts_tested, total_shifts_to_test, f"Testing key length {length} (Shift {shift + 1}/26)...")
+                    time.sleep(0.01)
+
+                chi_sq = 0
+                for c_val in range(26):
+                    orig_val = (c_val - shift) % 26
+                    expected = n * ENGLISH_FREQ[orig_val]
+                    observed = counts[c_val]
+                    if expected > 0:
+                        chi_sq += ((observed - expected) ** 2) / expected
+                if chi_sq < best_chi_sq:
+                    best_chi_sq = chi_sq
+                    best_shift = shift
+            key.append(chr(best_shift + 65))
+            
+        candidate_key = "".join(key)
         candidate_text = decrypt(ciphertext, candidate_key)
         english_score = score_plaintext("".join(c for c in candidate_text if c.isascii() and c.isalpha()))
 
@@ -107,6 +145,9 @@ def vigenere_attack(ciphertext: str) -> dict:
             best_score = english_score
             best_key = candidate_key
             best_text = candidate_text
+
+    if progress_callback:
+        progress_callback(len(top_lengths) + 1, len(top_lengths) + 1, "Complete")
 
     return {
         "guessed_key": reduce_key(best_key),

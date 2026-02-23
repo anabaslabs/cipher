@@ -301,12 +301,15 @@ export default function Report() {
 
             <div className="flex flex-col justify-center items-center gap-6 md:gap-8">
               <Button
+                title={reportFile?.filename || "N/A"}
                 className="w-full leading-none"
                 variant="outline"
                 onClick={handleDownload}
               >
-                <IconDownload className="size-4" aria-hidden="true" />
-                {reportFile?.filename || "N/A"}
+                <IconDownload className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">
+                  {reportFile?.filename || "N/A"}
+                </span>
               </Button>
 
               <Button

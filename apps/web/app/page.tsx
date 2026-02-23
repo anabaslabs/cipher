@@ -75,6 +75,12 @@ export default function Home() {
             <Badge variant="secondary" className="text-sm border-gray-500">
               DES
             </Badge>
+            <Badge variant="secondary" className="text-sm border-gray-500">
+              AES-128
+            </Badge>
+            <Badge variant="secondary" className="text-sm border-gray-500">
+              RC5
+            </Badge>
           </h2>
         </div>
 

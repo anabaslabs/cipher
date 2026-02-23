@@ -1,8 +1,10 @@
 import os
 import json
 import asyncio
+import threading
+import queue
 from fastapi import APIRouter, UploadFile, File, Form
-from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
+from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse, StreamingResponse
 
 from app.routers.report import compare
 
@@ -33,6 +35,14 @@ from app.routers.hill.attack import hill_attack
 from app.routers.des.key import generate_key as des_generate_key
 from app.routers.des.encrypt import encrypt as des_encrypt
 from app.routers.des.decrypt import decrypt as des_decrypt
+
+from app.routers.aes.key import generate_key as aes_generate_key
+from app.routers.aes.encrypt import encrypt as aes_encrypt
+from app.routers.aes.decrypt import decrypt as aes_decrypt
+
+from app.routers.rc5.key import generate_key as rc5_generate_key
+from app.routers.rc5.encrypt import encrypt as rc5_encrypt
+from app.routers.rc5.decrypt import decrypt as rc5_decrypt
 
 
 router = APIRouter()
@@ -83,7 +93,7 @@ async def caesar_report_route(
 
     name = get_name(original)
     recovered_name = (recovered.filename or "").upper()
-    algo_suffixes = ["_CC_", "_PC_", "_VC_", "_PFC_", "_HC_", "_DC_"]
+    algo_suffixes = ["_CC_", "_PC_", "_VC_", "_PFC_", "_HC_", "_DC_", "_AES_", "_RC5_"]
     suffix = next((s.strip("_") for s in algo_suffixes if s in recovered_name), "")
     report_name = f"{name}_{suffix}_Report.txt" if suffix else f"{name}_Report.txt"
     return PlainTextResponse(
@@ -92,6 +102,81 @@ async def caesar_report_route(
             "Content-Disposition": f'attachment; filename="{report_name}"'
         },
     )
+
+
+    
+# SSE Attack Streaming
+def _run_attack_with_progress(attack_fn, content, progress_queue, **kwargs):
+    def progress_callback(current, total, status):
+        pct = int((current / total) * 100) if total else 0
+        progress_queue.put({"progress": pct, "status": status})
+
+    try:
+        result = attack_fn(content, progress_callback=progress_callback, **kwargs)
+        progress_queue.put({"progress": 100, "status": "Complete", "result": result})
+    except Exception as e:
+        progress_queue.put({"progress": -1, "status": "Error", "error": str(e)})
+    progress_queue.put(None)
+
+
+async def _sse_generator(progress_queue):
+    while True:
+        try:
+            msg = await asyncio.get_event_loop().run_in_executor(None, progress_queue.get, True, 0.5)
+        except Exception:
+            await asyncio.sleep(0.1)
+            continue
+        if msg is None:
+            break
+        yield f"data: {json.dumps(msg)}\n\n"
+
+
+@router.post("/caesar/attack/stream", tags=["caesar"])
+async def caesar_attack_stream(file: UploadFile = File(...)):
+    content = await read_file(file)
+    progress_queue = queue.Queue()
+    threading.Thread(
+        target=_run_attack_with_progress,
+        args=(caesar_attack, content, progress_queue),
+        daemon=True,
+    ).start()
+    return StreamingResponse(_sse_generator(progress_queue), media_type="text/event-stream")
+
+
+@router.post("/permute/attack/stream", tags=["permute"])
+async def permute_attack_stream(file: UploadFile = File(...)):
+    content = await read_file(file)
+    progress_queue = queue.Queue()
+    threading.Thread(
+        target=_run_attack_with_progress,
+        args=(frequency_attack, content, progress_queue),
+        daemon=True,
+    ).start()
+    return StreamingResponse(_sse_generator(progress_queue), media_type="text/event-stream")
+
+
+@router.post("/vigenere/attack/stream", tags=["vigenere"])
+async def vigenere_attack_stream(file: UploadFile = File(...)):
+    content = await read_file(file)
+    progress_queue = queue.Queue()
+    threading.Thread(
+        target=_run_attack_with_progress,
+        args=(vigenere_attack, content, progress_queue),
+        daemon=True,
+    ).start()
+    return StreamingResponse(_sse_generator(progress_queue), media_type="text/event-stream")
+
+
+@router.post("/hill/attack/stream", tags=["hill"])
+async def hill_attack_stream(file: UploadFile = File(...)):
+    content = await read_file(file)
+    progress_queue = queue.Queue()
+    threading.Thread(
+        target=_run_attack_with_progress,
+        args=(hill_attack, content, progress_queue),
+        daemon=True,
+    ).start()
+    return StreamingResponse(_sse_generator(progress_queue), media_type="text/event-stream")
 
 
 # Caesar Key
@@ -264,3 +349,48 @@ async def des_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
     content = await read_file(file)
     decrypted = des_decrypt(content, key)
     return JSONResponse(content=decrypted)
+
+
+# AES Key
+@router.get("/aes/key", tags=["aes"])
+async def aes_key_route():
+    return {"key": aes_generate_key()}
+
+
+# AES Encryption
+@router.post("/aes/encrypt", tags=["aes"])
+async def aes_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    encrypted = aes_encrypt(content, key)
+    return JSONResponse(content=encrypted)
+
+
+# AES Decryption
+@router.post("/aes/decrypt", tags=["aes"])
+async def aes_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    decrypted = aes_decrypt(content, key)
+    return JSONResponse(content=decrypted)
+
+
+# RC5 Key
+@router.get("/rc5/key", tags=["rc5"])
+async def rc5_key_route():
+    return {"key": rc5_generate_key()}
+
+
+# RC5 Encryption
+@router.post("/rc5/encrypt", tags=["rc5"])
+async def rc5_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    encrypted = rc5_encrypt(content, key)
+    return JSONResponse(content=encrypted)
+
+
+# RC5 Decryption
+@router.post("/rc5/decrypt", tags=["rc5"])
+async def rc5_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+    content = await read_file(file)
+    decrypted = rc5_decrypt(content, key)
+    return JSONResponse(content=decrypted)
+

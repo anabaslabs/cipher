@@ -46,6 +46,8 @@ const algoSuffixMap: Record<string, string> = {
   playfair: "_PFC",
   hill: "_HC",
   des: "_DC",
+  aes: "_AES",
+  rc5: "_RC5",
 };
 
 export default function Encrypt() {
@@ -241,6 +243,8 @@ export default function Encrypt() {
                     </SelectItem>
                     <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                     <SelectItem value="des">DES</SelectItem>
+                    <SelectItem value="aes">AES-128</SelectItem>
+                    <SelectItem value="rc5">RC5</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -388,12 +392,16 @@ export default function Encrypt() {
               {downloadFiles.map((dlFile) => (
                 <Button
                   key={dlFile.filename}
+                  title={dlFile.filename}
                   className="w-full leading-none"
                   variant="outline"
                   onClick={() => handleDownload(dlFile)}
                 >
-                  <IconDownload className="size-4" aria-hidden="true" />
-                  {dlFile.filename}
+                  <IconDownload
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">{dlFile.filename}</span>
                 </Button>
               ))}
 

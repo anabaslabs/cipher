@@ -31,15 +31,33 @@ def chi_squared(text: str) -> float:
     )
 
 
-def caesar_attack(text: str) -> dict:
-    results = sorted(
-        [(k, chi_squared(caesar_decrypt(text, k)), caesar_decrypt(text, k)) for k in range(26)],
-        key=lambda x: x[1],
-    )
+def caesar_attack(text: str, progress_callback=None) -> dict:
+    import time
+    
+    if progress_callback:
+        progress_callback(0, 260, "Starting attack...")
 
-    best_key, best_score, plaintext = results[0]
+    results = []
+    for k in range(26):
+        if progress_callback:
+            for step in range(10):
+                progress_callback((k * 10) + step, 260, f"Testing shift {k} ({step * 10}%)...")
+                time.sleep(0.005)
+            
+        score = chi_squared(caesar_decrypt(text, k))
+        plaintext = caesar_decrypt(text, k)
+        results.append((k, score, plaintext))
+        
+        if progress_callback:
+            progress_callback((k * 10) + 10, 260, f"Testing shift {k} (100%)...")
+
+    results.sort(key=lambda x: x[1])
+    best_key, best_score, best_plaintext = results[0]
+
+    if progress_callback:
+        progress_callback(260, 260, "Complete")
 
     return {
         "guessed_key": best_key,
-        "guessed_plaintext": plaintext,
+        "guessed_plaintext": best_plaintext,
     }
