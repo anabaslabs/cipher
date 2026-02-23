@@ -97,13 +97,10 @@ export default function Attack() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(
-        `${apiUrl}/${cipherMethod}/attack/stream`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(`${apiUrl}/${cipherMethod}/attack/stream`, {
+        method: "POST",
+        body: formData,
+      });
 
       if (!response.ok || !response.body) {
         throw new Error("Stream failed");
@@ -139,7 +136,10 @@ export default function Attack() {
                 throw new Error(parsed.error);
               }
             } catch (parseErr) {
-              if (parseErr instanceof Error && parseErr.message !== "Stream failed") {
+              if (
+                parseErr instanceof Error &&
+                parseErr.message !== "Stream failed"
+              ) {
               }
             }
           }
@@ -150,7 +150,10 @@ export default function Attack() {
         throw new Error("No result received");
       }
 
-      const data = finalData as { guessed_plaintext?: string; guessed_key?: unknown };
+      const data = finalData as {
+        guessed_plaintext?: string;
+        guessed_key?: unknown;
+      };
       const files: DownloadFile[] = [];
       const baseName = file.name.replace(/\.[^.]+$/, "");
 
@@ -165,8 +168,11 @@ export default function Attack() {
       }
       if (data.guessed_key !== undefined && data.guessed_key !== null) {
         const keyStr =
-          typeof data.guessed_key === "object" && (data.guessed_key as Record<string, unknown>).matrix
-            ? JSON.stringify((data.guessed_key as Record<string, unknown>).matrix)
+          typeof data.guessed_key === "object" &&
+          (data.guessed_key as Record<string, unknown>).matrix
+            ? JSON.stringify(
+                (data.guessed_key as Record<string, unknown>).matrix
+              )
             : typeof data.guessed_key === "object"
               ? JSON.stringify(data.guessed_key)
               : String(data.guessed_key);
@@ -214,7 +220,7 @@ export default function Attack() {
             className="w-full"
             onClearFilesReady={handleSetClear}
           />
-          <div className="flex flex-col justify-center items-center gap-6 md:gap-10 w-full">
+          <div className="flex flex-col justify-evenly items-center gap-6 md:gap-13 w-full">
             <Field>
               <FieldLabel htmlFor="cipher-method-select">
                 Cipher Method
@@ -238,15 +244,19 @@ export default function Attack() {
               </Select>
             </Field>
 
-            {(state === "processing" || state === "done") && (
-              <div className="flex flex-col gap-2 w-full">
-                <div className="flex justify-between items-center text-xs text-muted-foreground">
-                  <span>{progressStatus}</span>
-                  <span>{progress}%</span>
-                </div>
-                <Progress value={progress} className="h-2" />
+            {
+              <div className="flex flex-col gap-2 w-full h-8">
+                {(state === "processing" || state === "done") && (
+                  <>
+                    <div className="flex justify-between items-center text-xs text-muted-foreground">
+                      <span>{progressStatus}</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <Progress value={progress} className="h-2" />
+                  </>
+                )}
               </div>
-            )}
+            }
 
             <Field className="grid grid-cols-5 mt-2">
               <Button
@@ -358,12 +368,16 @@ export default function Attack() {
               {downloadFiles.map((dlFile) => (
                 <Button
                   key={dlFile.filename}
+                  title={dlFile.filename}
                   className="w-full leading-none"
                   variant="outline"
                   onClick={() => handleDownload(dlFile)}
                 >
-                  <IconDownload className="size-4" aria-hidden="true" />
-                  {dlFile.filename}
+                  <IconDownload
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">{dlFile.filename}</span>
                 </Button>
               ))}
 

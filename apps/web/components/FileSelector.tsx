@@ -129,7 +129,14 @@ export default function FileSelector({
               )}
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
-              <p className="truncate text-sm font-medium">
+              <p
+                className="truncate text-sm font-medium"
+                title={
+                  files[0]?.file instanceof File
+                    ? files[0].file.name
+                    : "No file selected"
+                }
+              >
                 {files[0]?.file instanceof File
                   ? files[0].file.name
                   : "No file selected"}

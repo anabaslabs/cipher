@@ -358,12 +358,16 @@ export default function Decrypt() {
               {downloadFiles.map((dlFile) => (
                 <Button
                   key={dlFile.filename}
+                  title={dlFile.filename}
                   className="w-full leading-none"
                   variant="outline"
                   onClick={() => handleDownload(dlFile)}
                 >
-                  <IconDownload className="size-4" aria-hidden="true" />
-                  {dlFile.filename}
+                  <IconDownload
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">{dlFile.filename}</span>
                 </Button>
               ))}
 
