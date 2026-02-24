@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Header from "@/components/Header";
 import {
   Select,
@@ -45,6 +45,7 @@ export default function Decrypt() {
     file: null as File | null,
     decryptionMethod: null as string | null,
     decryptionKey: null as string | null,
+    aesSize: "128",
     rc5W: "32",
     rc5R: 12,
     rc5B: 16,
@@ -59,10 +60,6 @@ export default function Decrypt() {
     audio.volume = 0.6;
     audio.play().catch(() => {});
   };
-
-  useEffect(() => {
-    console.log(formState.file);
-  }, [formState.file]);
 
   const handleFileChange = useCallback((file: File | null) => {
     setFormState((prev) => ({ ...prev, file }));
@@ -82,6 +79,7 @@ export default function Decrypt() {
       file: null,
       decryptionMethod: null,
       decryptionKey: null,
+      aesSize: "128",
       rc5W: "32",
       rc5R: 12,
       rc5B: 16,
@@ -157,6 +155,8 @@ export default function Decrypt() {
         if (formState.decryptionMethod === "rc5") {
           keyStr = `Key: ${response.data.key}\nWord Size (w): ${formState.rc5W}-bit\n` +
                    `Rounds (r): ${formState.rc5R}\nKey Size (b): ${formState.rc5B} bytes\n`;
+        } else if (formState.decryptionMethod === "aes") {
+          keyStr = `Key: ${response.data.key}\nKey Size: ${formState.aesSize}-bit\n`;
         } else {
           keyStr =
             typeof response.data.key === "object" && response.data.key.matrix
@@ -230,6 +230,30 @@ export default function Decrypt() {
                 </SelectContent>
               </Select>
             </Field>
+
+            {formState.decryptionMethod === "aes" && (
+              <Field>
+                <FieldLabel htmlFor="aes-size">AES Key Size</FieldLabel>
+                <Select
+                  value={formState.aesSize}
+                  onValueChange={(value) =>
+                    setFormState((prev) => ({ ...prev, aesSize: value }))
+                  }
+                  disabled={state !== "idle"}
+                >
+                  <SelectTrigger className="w-full" id="aes-size">
+                    <SelectValue placeholder="Select size" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      <SelectItem value="128">128-bit</SelectItem>
+                      <SelectItem value="192">192-bit</SelectItem>
+                      <SelectItem value="256">256-bit</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
 
             {formState.decryptionMethod === "rc5" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
@@ -306,12 +330,29 @@ export default function Decrypt() {
                   id="input-button-group"
                   placeholder="Enter Key"
                   value={formState.decryptionKey || ""}
-                  onChange={(e) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      decryptionKey: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => {
+                    const keyVal = e.target.value;
+                    setFormState((prev) => {
+                      const next = { ...prev, decryptionKey: keyVal };
+                      
+                      // Auto-update key sizes based on hex length (2 hex chars = 1 byte).
+                      const bytes = Math.ceil(keyVal.length / 2);
+                      
+                      if (bytes > 0) {
+                        if (bytes <= 32) {
+                          // AES matching
+                          if (bytes <= 16) next.aesSize = "128";
+                          else if (bytes <= 24) next.aesSize = "192";
+                          else next.aesSize = "256";
+                        }
+                        
+                        // RC5 clamping
+                        next.rc5B = Math.max(0, Math.min(255, bytes));
+                      }
+                      
+                      return next;
+                    });
+                  }}
                   disabled={state !== "idle"}
                 />
                 <Button
@@ -320,7 +361,21 @@ export default function Decrypt() {
                   disabled={state !== "idle"}
                   onClick={async () => {
                     const text = await navigator.clipboard.readText();
-                    setFormState((prev) => ({ ...prev, decryptionKey: text }));
+                    setFormState((prev) => {
+                      const next = { ...prev, decryptionKey: text };
+                      const bytes = Math.ceil(text.length / 2);
+                      
+                      if (bytes > 0) {
+                        if (bytes <= 32) {
+                          if (bytes <= 16) next.aesSize = "128";
+                          else if (bytes <= 24) next.aesSize = "192";
+                          else next.aesSize = "256";
+                        }
+                        next.rc5B = Math.max(0, Math.min(255, bytes));
+                      }
+                      
+                      return next;
+                    });
                   }}
                 >
                   <IconClipboard className="size-4" aria-hidden="true" />

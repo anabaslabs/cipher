@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Header from "@/components/Header";
 import {
   Select,
@@ -71,10 +71,6 @@ export default function Encrypt() {
     audio.volume = 0.6;
     audio.play().catch(() => {});
   };
-
-  useEffect(() => {
-    console.log(formState.file);
-  }, [formState.file]);
 
   const handleFileChange = useCallback((file: File | null) => {
     setFormState((prev) => ({ ...prev, file }));
@@ -202,6 +198,8 @@ export default function Encrypt() {
         if (formState.encryptionMethod === "rc5") {
           keyStr = `Key: ${response.data.key}\nWord Size (w): ${formState.rc5W}-bit\n` +
                    `Rounds (r): ${formState.rc5R}\nKey Size (b): ${formState.rc5B} bytes\n`;
+        } else if (formState.encryptionMethod === "aes") {
+          keyStr = `Key: ${response.data.key}\nKey Size: ${formState.aesSize}-bit\n`;
         } else {
           keyStr =
             typeof response.data.key === "object" && response.data.key.matrix
