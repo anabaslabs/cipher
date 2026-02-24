@@ -56,6 +56,7 @@ export default function Encrypt() {
     file: null as File | null,
     encryptionMethod: null as string | null,
     encryptionKey: null as string | null,
+    aesSize: "128",
   });
   const [downloadFiles, setDownloadFiles] = useState<DownloadFile[]>([]);
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
@@ -90,6 +91,7 @@ export default function Encrypt() {
       file: null,
       encryptionMethod: null,
       encryptionKey: null,
+      aesSize: "128",
     });
     setDownloadFiles([]);
     setTimeTaken(null);
@@ -109,9 +111,11 @@ export default function Encrypt() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.get(
-        `${apiUrl}/${formState.encryptionMethod}/key`
-      );
+      const endpoint = formState.encryptionMethod === "aes" 
+        ? `${apiUrl}/aes/key?bits=${formState.aesSize}`
+        : `${apiUrl}/${formState.encryptionMethod}/key`;
+      
+      const response = await axios.get(endpoint);
 
       if (response.data) {
         const key =
@@ -243,12 +247,36 @@ export default function Encrypt() {
                     </SelectItem>
                     <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                     <SelectItem value="des">DES</SelectItem>
-                    <SelectItem value="aes">AES-128</SelectItem>
+                    <SelectItem value="aes">AES</SelectItem>
                     <SelectItem value="rc5">RC5</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </Field>
+
+            {formState.encryptionMethod === "aes" && (
+              <Field>
+                <FieldLabel htmlFor="aes-size">AES Key Size</FieldLabel>
+                <Select
+                  value={formState.aesSize}
+                  onValueChange={(value) =>
+                    setFormState((prev) => ({ ...prev, aesSize: value }))
+                  }
+                  disabled={state !== "idle"}
+                >
+                  <SelectTrigger className="w-full" id="aes-size">
+                    <SelectValue placeholder="Select size" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      <SelectItem value="128">128-bit</SelectItem>
+                      <SelectItem value="192">192-bit</SelectItem>
+                      <SelectItem value="256">256-bit</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
 
             <Field>
               <FieldLabel htmlFor="input-button-group">

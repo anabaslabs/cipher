@@ -205,7 +205,7 @@ export default function Decrypt() {
                     </SelectItem>
                     <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
                     <SelectItem value="des">DES</SelectItem>
-                    <SelectItem value="aes">AES-128</SelectItem>
+                    <SelectItem value="aes">AES</SelectItem>
                     <SelectItem value="rc5">RC5</SelectItem>
                   </SelectGroup>
                 </SelectContent>

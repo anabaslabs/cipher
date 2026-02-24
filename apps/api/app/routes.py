@@ -353,8 +353,8 @@ async def des_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
 
 # AES Key
 @router.get("/aes/key", tags=["aes"])
-async def aes_key_route():
-    return {"key": aes_generate_key()}
+async def aes_key_route(bits: int = 128):
+    return {"key": aes_generate_key(bits)}
 
 
 # AES Encryption

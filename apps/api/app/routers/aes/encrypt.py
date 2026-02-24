@@ -7,8 +7,11 @@ import os
 
 def encrypt(plaintext: str, hex_key: str) -> dict:
     key_bytes = binascii.unhexlify(hex_key)
-    if len(key_bytes) != 16:
-        raise ValueError("Key must be exactly 32 hex characters (16 bytes).")
+    byte_len = len(key_bytes)
+    if byte_len not in (16, 24, 32):
+        expected_bits = 128 if byte_len < 20 else 192 if byte_len < 28 else 256
+        expected_bytes = expected_bits // 8
+        raise ValueError(f"Expected {expected_bytes * 2} hex chars")
 
     iv = os.urandom(16)
     cipher = AES.new(key_bytes, AES.MODE_CBC, iv)
