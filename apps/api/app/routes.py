@@ -375,22 +375,32 @@ async def aes_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
 
 # RC5 Key
 @router.get("/rc5/key", tags=["rc5"])
-async def rc5_key_route():
-    return {"key": rc5_generate_key()}
+async def rc5_key_route(b: int = 16):
+    return {"key": rc5_generate_key(b)}
 
 
 # RC5 Encryption
 @router.post("/rc5/encrypt", tags=["rc5"])
-async def rc5_encrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+async def rc5_encrypt_route(
+    file: UploadFile = File(...), 
+    key: str = Form(...),
+    w: int = Form(32),
+    r: int = Form(12)
+):
     content = await read_file(file)
-    encrypted = rc5_encrypt(content, key)
+    encrypted = rc5_encrypt(content, key, w, r)
     return JSONResponse(content=encrypted)
 
 
 # RC5 Decryption
 @router.post("/rc5/decrypt", tags=["rc5"])
-async def rc5_decrypt_route(file: UploadFile = File(...), key: str = Form(...)):
+async def rc5_decrypt_route(
+    file: UploadFile = File(...), 
+    key: str = Form(...),
+    w: int = Form(32),
+    r: int = Form(12)
+):
     content = await read_file(file)
-    decrypted = rc5_decrypt(content, key)
+    decrypted = rc5_decrypt(content, key, w, r)
     return JSONResponse(content=decrypted)
 

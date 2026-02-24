@@ -45,6 +45,9 @@ export default function Decrypt() {
     file: null as File | null,
     decryptionMethod: null as string | null,
     decryptionKey: null as string | null,
+    rc5W: "32",
+    rc5R: 12,
+    rc5B: 16,
   });
   const [downloadFiles, setDownloadFiles] = useState<DownloadFile[]>([]);
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
@@ -79,6 +82,9 @@ export default function Decrypt() {
       file: null,
       decryptionMethod: null,
       decryptionKey: null,
+      rc5W: "32",
+      rc5R: 12,
+      rc5B: 16,
     });
     setDownloadFiles([]);
     setTimeTaken(null);
@@ -112,6 +118,11 @@ export default function Decrypt() {
       formData.append("key", key);
     }
 
+    if (formState.decryptionMethod === "rc5") {
+      formData.append("w", formState.rc5W);
+      formData.append("r", formState.rc5R.toString());
+    }
+
     setState("processing");
     const startTime = performance.now();
 
@@ -141,12 +152,20 @@ export default function Decrypt() {
       });
 
       if (response.data.key !== undefined && response.data.key !== null) {
-        const keyStr =
-          typeof response.data.key === "object" && response.data.key.matrix
-            ? JSON.stringify(response.data.key.matrix)
-            : typeof response.data.key === "object"
-              ? JSON.stringify(response.data.key)
-              : String(response.data.key);
+        let keyStr = "";
+        
+        if (formState.decryptionMethod === "rc5") {
+          keyStr = `Key: ${response.data.key}\nWord Size (w): ${formState.rc5W}-bit\n` +
+                   `Rounds (r): ${formState.rc5R}\nKey Size (b): ${formState.rc5B} bytes\n`;
+        } else {
+          keyStr =
+            typeof response.data.key === "object" && response.data.key.matrix
+              ? JSON.stringify(response.data.key.matrix)
+              : typeof response.data.key === "object"
+                ? JSON.stringify(response.data.key)
+                : String(response.data.key);
+        }
+        
         const keyBlob = new Blob([keyStr], { type: "text/plain" });
         files.push({
           url: window.URL.createObjectURL(keyBlob),
@@ -211,6 +230,72 @@ export default function Decrypt() {
                 </SelectContent>
               </Select>
             </Field>
+
+            {formState.decryptionMethod === "rc5" && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                <Field>
+                  <FieldLabel htmlFor="rc5-w">Word Size (w)</FieldLabel>
+                  <Select
+                    value={formState.rc5W}
+                    onValueChange={(value) =>
+                      setFormState((prev) => ({ ...prev, rc5W: value }))
+                    }
+                    disabled={state !== "idle"}
+                  >
+                    <SelectTrigger className="w-full" id="rc5-w">
+                      <SelectValue placeholder="Select w" />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectGroup>
+                        <SelectItem value="16">16-bit</SelectItem>
+                        <SelectItem value="32">32-bit</SelectItem>
+                        <SelectItem value="64">64-bit</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="rc5-r">Rounds (r)</FieldLabel>
+                  <Input
+                    id="rc5-r"
+                    type="number"
+                    min={0}
+                    max={255}
+                    value={formState.rc5R}
+                    onChange={(e) => {
+                      let val = parseInt(e.target.value);
+                      if (isNaN(val)) val = 0;
+                      val = Math.max(0, Math.min(255, val));
+                      setFormState((prev) => ({
+                        ...prev,
+                        rc5R: val,
+                      }));
+                    }}
+                    disabled={state !== "idle"}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="rc5-b">Key Size (b bytes)</FieldLabel>
+                  <Input
+                    id="rc5-b"
+                    type="number"
+                    min={0}
+                    max={255}
+                    value={formState.rc5B}
+                    onChange={(e) => {
+                      let val = parseInt(e.target.value);
+                      if (isNaN(val)) val = 0;
+                      val = Math.max(0, Math.min(255, val));
+                      setFormState((prev) => ({
+                        ...prev,
+                        rc5B: val,
+                      }));
+                    }}
+                    disabled={state !== "idle"}
+                  />
+                </Field>
+              </div>
+            )}
 
             <Field>
               <FieldLabel htmlFor="input-button-group">
