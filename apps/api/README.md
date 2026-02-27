@@ -6,6 +6,7 @@ FastAPI backend for the Cipher project.
 
 | METHOD                                           | ENDPOINT                  | DESCRIPTION                                       |
 | ------------------------------------------------ | ------------------------- | ------------------------------------------------- |
+| ![GET](https://img.shields.io/badge/GET-blue)    | `/`                       | Root endpoint                                     |
 | ![GET](https://img.shields.io/badge/GET-blue)    | `/health`                 | Health check                                      |
 | ![POST](https://img.shields.io/badge/POST-green) | `/report`                 | Compare original vs recovered and download report |
 | ![GET](https://img.shields.io/badge/GET-blue)    | `/caesar/key`             | Generate a random Caesar cipher key               |
@@ -34,10 +35,10 @@ FastAPI backend for the Cipher project.
 | ![GET](https://img.shields.io/badge/GET-blue)    | `/des/key`                | Generate a random DES key                         |
 | ![POST](https://img.shields.io/badge/POST-green) | `/des/encrypt`            | Encrypt with DES                                  |
 | ![POST](https://img.shields.io/badge/POST-green) | `/des/decrypt`            | Decrypt with DES                                  |
-| ![GET](https://img.shields.io/badge/GET-blue)    | `/aes/key`                | Generate a random AES-128 key                     |
-| ![POST](https://img.shields.io/badge/POST-green) | `/aes/encrypt`            | Encrypt with AES-128                              |
-| ![POST](https://img.shields.io/badge/POST-green) | `/aes/decrypt`            | Decrypt with AES-128                              |
-| ![GET](https://img.shields.io/badge/GET-blue)    | `/rc5/key`                | Generate a random RC5 key                         |
+| ![GET](https://img.shields.io/badge/GET-blue)    | `/aes/key`                | Generate a random AES key (default: 128 bits)     |
+| ![POST](https://img.shields.io/badge/POST-green) | `/aes/encrypt`            | Encrypt with AES                                  |
+| ![POST](https://img.shields.io/badge/POST-green) | `/aes/decrypt`            | Decrypt with AES                                  |
+| ![GET](https://img.shields.io/badge/GET-blue)    | `/rc5/key`                | Generate a random RC5 key (default: 16 bytes)     |
 | ![POST](https://img.shields.io/badge/POST-green) | `/rc5/encrypt`            | Encrypt with RC5                                  |
 | ![POST](https://img.shields.io/badge/POST-green) | `/rc5/decrypt`            | Decrypt with RC5                                  |
 

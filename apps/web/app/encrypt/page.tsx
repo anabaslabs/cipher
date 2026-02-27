@@ -259,6 +259,11 @@ export default function Encrypt() {
                     setFormState((prev) => ({
                       ...prev,
                       encryptionMethod: value,
+                      encryptionKey: null,
+                      aesSize: "128",
+                      rc5W: "32",
+                      rc5R: 12,
+                      rc5B: 16,
                     }))
                   }
                   disabled={state !== "idle"}

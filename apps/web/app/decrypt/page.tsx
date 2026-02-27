@@ -212,6 +212,11 @@ export default function Decrypt() {
                     setFormState((prev) => ({
                       ...prev,
                       decryptionMethod: value,
+                      decryptionKey: null,
+                      aesSize: "128",
+                      rc5W: "32",
+                      rc5R: 12,
+                      rc5B: 16,
                     }))
                   }
                   disabled={state !== "idle"}
