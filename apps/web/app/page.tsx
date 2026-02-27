@@ -76,7 +76,7 @@ export default function Home() {
               DES
             </Badge>
             <Badge variant="secondary" className="text-sm border-gray-500">
-              AES-128
+              AES
             </Badge>
             <Badge variant="secondary" className="text-sm border-gray-500">
               RC5
