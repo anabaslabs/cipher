@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Header from "@/components/Header";
 import {
   Select,
@@ -56,10 +56,15 @@ export default function Encrypt() {
     file: null as File | null,
     encryptionMethod: null as string | null,
     encryptionKey: null as string | null,
+    aesSize: "128",
+    rc5W: "32",
+    rc5R: 12,
+    rc5B: 16,
   });
   const [downloadFiles, setDownloadFiles] = useState<DownloadFile[]>([]);
   const [timeTaken, setTimeTaken] = useState<number | null>(null);
   const [keyCopied, setKeyCopied] = useState(false);
+  const [isGeneratingKey, setIsGeneratingKey] = useState(false);
   const clearFilesRef = useRef<(() => void) | null>(null);
 
   const playSound = () => {
@@ -67,10 +72,6 @@ export default function Encrypt() {
     audio.volume = 0.6;
     audio.play().catch(() => {});
   };
-
-  useEffect(() => {
-    console.log(formState.file);
-  }, [formState.file]);
 
   const handleFileChange = useCallback((file: File | null) => {
     setFormState((prev) => ({ ...prev, file }));
@@ -90,6 +91,10 @@ export default function Encrypt() {
       file: null,
       encryptionMethod: null,
       encryptionKey: null,
+      aesSize: "128",
+      rc5W: "32",
+      rc5R: 12,
+      rc5B: 16,
     });
     setDownloadFiles([]);
     setTimeTaken(null);
@@ -107,11 +112,17 @@ export default function Encrypt() {
   const handleGenerateRandomKey = async () => {
     if (!formState.encryptionMethod) return;
 
+    setIsGeneratingKey(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.get(
-        `${apiUrl}/${formState.encryptionMethod}/key`
-      );
+      let endpoint = `${apiUrl}/${formState.encryptionMethod}/key`;
+      if (formState.encryptionMethod === "aes") {
+        endpoint = `${apiUrl}/aes/key?bits=${formState.aesSize}`;
+      } else if (formState.encryptionMethod === "rc5") {
+        endpoint = `${apiUrl}/rc5/key?b=${formState.rc5B}`;
+      }
+
+      const response = await axios.get(endpoint);
 
       if (response.data) {
         const key =
@@ -125,6 +136,8 @@ export default function Encrypt() {
       }
     } catch (error) {
       console.error("Key generation error:", error);
+    } finally {
+      setIsGeneratingKey(false);
     }
   };
 
@@ -145,6 +158,11 @@ export default function Encrypt() {
             })
           : formState.encryptionKey;
       formData.append("key", key);
+    }
+
+    if (formState.encryptionMethod === "rc5") {
+      formData.append("w", formState.rc5W);
+      formData.append("r", formState.rc5R.toString());
     }
 
     setState("processing");
@@ -179,12 +197,23 @@ export default function Encrypt() {
       });
 
       if (response.data.key !== undefined && response.data.key !== null) {
-        const keyStr =
-          typeof response.data.key === "object" && response.data.key.matrix
-            ? JSON.stringify(response.data.key.matrix)
-            : typeof response.data.key === "object"
-              ? JSON.stringify(response.data.key)
-              : String(response.data.key);
+        let keyStr = "";
+
+        if (formState.encryptionMethod === "rc5") {
+          keyStr =
+            `Key: ${response.data.key}\nWord Size (w): ${formState.rc5W}-bit\n` +
+            `Rounds (r): ${formState.rc5R}\nKey Size (b): ${formState.rc5B} bytes\n`;
+        } else if (formState.encryptionMethod === "aes") {
+          keyStr = `Key: ${response.data.key}\nKey Size: ${formState.aesSize}-bit\n`;
+        } else {
+          keyStr =
+            typeof response.data.key === "object" && response.data.key.matrix
+              ? JSON.stringify(response.data.key.matrix)
+              : typeof response.data.key === "object"
+                ? JSON.stringify(response.data.key)
+                : String(response.data.key);
+        }
+
         const keyBlob = new Blob([keyStr], { type: "text/plain" });
         files.push({
           url: window.URL.createObjectURL(keyBlob),
@@ -210,126 +239,239 @@ export default function Encrypt() {
     <>
       <Header backButton titleText="Encrypt" />
       <main className="flex flex-col justify-center items-center gap-6 md:gap-10 p-4 md:p-6 w-full">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-10 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
-          <FileSelector
-            titleText="Add Plaintext File"
-            setFile={handleFileChange}
-            state={state}
-            className="w-full"
-            onClearFilesReady={handleSetClear}
-          />
-          <div className="flex flex-col justify-center items-center gap-6 md:gap-10 w-full">
-            <Field>
-              <FieldLabel htmlFor="input-button-group">
-                Encryption Method
-              </FieldLabel>
-              <Select
-                value={formState.encryptionMethod || ""}
-                onValueChange={(value) =>
-                  setFormState((prev) => ({ ...prev, encryptionMethod: value }))
-                }
-                disabled={state !== "idle"}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select encryption method" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectGroup>
-                    <SelectItem value="caesar">Caesar Cipher</SelectItem>
-                    <SelectItem value="permute">Permutation Cipher</SelectItem>
-                    <SelectItem value="vigenere">Vigenère Cipher</SelectItem>
-                    <SelectItem value="playfair">
-                      Playfair Cipher (8x8)
-                    </SelectItem>
-                    <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
-                    <SelectItem value="des">DES</SelectItem>
-                    <SelectItem value="aes">AES-128</SelectItem>
-                    <SelectItem value="rc5">RC5</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="input-button-group">
-                Encryption Key
-              </FieldLabel>
-              <ButtonGroup>
-                <Input
-                  id="input-button-group"
-                  placeholder="Enter Key"
-                  value={formState.encryptionKey || ""}
-                  onChange={(e) =>
+        <div className="flex flex-col justify-between items-center gap-6 p-4 md:p-6 w-full max-w-6xl border rounded-lg">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-6 md:gap-10 w-full">
+            <FileSelector
+              titleText="Add Plaintext File"
+              setFile={handleFileChange}
+              state={state}
+              className="w-full"
+              onClearFilesReady={handleSetClear}
+            />
+            <div className="flex flex-col justify-center items-center gap-6 w-full">
+              <Field>
+                <FieldLabel htmlFor="input-button-group">
+                  Encryption Method
+                </FieldLabel>
+                <Select
+                  value={formState.encryptionMethod || ""}
+                  onValueChange={(value) =>
                     setFormState((prev) => ({
                       ...prev,
-                      encryptionKey: e.target.value,
+                      encryptionMethod: value,
+                      encryptionKey: null,
+                      aesSize: "128",
+                      rc5W: "32",
+                      rc5R: 12,
+                      rc5B: 16,
                     }))
                   }
                   disabled={state !== "idle"}
-                />
-                <Button
-                  variant="outline"
-                  className="leading-none"
-                  disabled={state !== "idle" || !formState.encryptionMethod}
-                  onClick={handleGenerateRandomKey}
                 >
-                  <IconDice5 className="size-4" aria-hidden="true" />
-                  Random
-                </Button>
-              </ButtonGroup>
-            </Field>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select encryption method" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      <SelectItem value="caesar">Caesar Cipher</SelectItem>
+                      <SelectItem value="permute">
+                        Permutation Cipher
+                      </SelectItem>
+                      <SelectItem value="vigenere">Vigenère Cipher</SelectItem>
+                      <SelectItem value="playfair">
+                        Playfair Cipher (8x8)
+                      </SelectItem>
+                      <SelectItem value="hill">Hill Cipher (2x2)</SelectItem>
+                      <SelectItem value="des">DES</SelectItem>
+                      <SelectItem value="aes">AES</SelectItem>
+                      <SelectItem value="rc5">RC5</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
 
-            <Field className="grid grid-cols-5 mt-2">
-              <Button
-                className="col-span-3 w-full leading-none"
-                disabled={
-                  state !== "idle" ||
-                  !formState.file ||
-                  !formState.encryptionMethod ||
-                  !formState.encryptionKey
-                }
-                onClick={handleEncrypt}
-              >
-                {state === "processing" ? (
-                  <>
-                    <IconLoader
-                      className="size-4 animate-spin"
-                      aria-hidden="true"
+              {formState.encryptionMethod === "aes" && (
+                <Field>
+                  <FieldLabel htmlFor="aes-size">AES Key Size</FieldLabel>
+                  <Select
+                    value={formState.aesSize}
+                    onValueChange={(value) =>
+                      setFormState((prev) => ({ ...prev, aesSize: value }))
+                    }
+                    disabled={state !== "idle"}
+                  >
+                    <SelectTrigger className="w-full" id="aes-size">
+                      <SelectValue placeholder="Select size" />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectGroup>
+                        <SelectItem value="128">128-bit</SelectItem>
+                        <SelectItem value="192">192-bit</SelectItem>
+                        <SelectItem value="256">256-bit</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+
+              {formState.encryptionMethod === "rc5" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                  <Field>
+                    <FieldLabel htmlFor="rc5-w">Word Size (w)</FieldLabel>
+                    <Select
+                      value={formState.rc5W}
+                      onValueChange={(value) =>
+                        setFormState((prev) => ({ ...prev, rc5W: value }))
+                      }
+                      disabled={state !== "idle"}
+                    >
+                      <SelectTrigger className="w-full" id="rc5-w">
+                        <SelectValue placeholder="Select w" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        <SelectGroup>
+                          <SelectItem value="16">16-bit</SelectItem>
+                          <SelectItem value="32">32-bit</SelectItem>
+                          <SelectItem value="64">64-bit</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="rc5-r">Rounds (r)</FieldLabel>
+                    <Input
+                      id="rc5-r"
+                      type="number"
+                      min={0}
+                      max={255}
+                      value={formState.rc5R}
+                      onChange={(e) => {
+                        let val = parseInt(e.target.value);
+                        if (isNaN(val)) val = 0;
+                        val = Math.max(0, Math.min(255, val));
+                        setFormState((prev) => ({
+                          ...prev,
+                          rc5R: val,
+                        }));
+                      }}
+                      disabled={state !== "idle"}
                     />
-                    Encrypting...
-                  </>
-                ) : state === "done" ? (
-                  <>
-                    <IconCheck className="size-4" aria-hidden="true" />
-                    Encrypted
-                  </>
-                ) : state === "error" ? (
-                  <>
-                    <IconX className="size-4" aria-hidden="true" />
-                    Failed
-                  </>
-                ) : (
-                  <>
-                    <IconLock className="size-4" aria-hidden="true" /> Encrypt
-                  </>
-                )}
-              </Button>
-              <Button
-                className="col-span-2 w-full leading-none"
-                variant="destructive"
-                disabled={
-                  state === "processing" ||
-                  state === "done" ||
-                  (formState.file === null &&
-                    !formState.encryptionMethod &&
-                    !formState.encryptionKey)
-                }
-                onClick={handleClear}
-              >
-                <IconReload className="size-4" aria-hidden="true" />
-                Reset
-              </Button>
-            </Field>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="rc5-b">Key Size (b bytes)</FieldLabel>
+                    <Input
+                      id="rc5-b"
+                      type="number"
+                      min={0}
+                      max={255}
+                      value={formState.rc5B}
+                      onChange={(e) => {
+                        let val = parseInt(e.target.value);
+                        if (isNaN(val)) val = 0;
+                        val = Math.max(0, Math.min(255, val));
+                        setFormState((prev) => ({
+                          ...prev,
+                          rc5B: val,
+                        }));
+                      }}
+                      disabled={state !== "idle"}
+                    />
+                  </Field>
+                </div>
+              )}
+
+              <Field>
+                <FieldLabel htmlFor="input-button-group">
+                  Encryption Key
+                </FieldLabel>
+                <ButtonGroup>
+                  <Input
+                    id="input-button-group"
+                    placeholder="Enter Key"
+                    value={formState.encryptionKey || ""}
+                    onChange={(e) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        encryptionKey: e.target.value,
+                      }))
+                    }
+                    disabled={state !== "idle"}
+                  />
+                  <Button
+                    variant="outline"
+                    className="leading-none"
+                    disabled={
+                      state !== "idle" ||
+                      !formState.encryptionMethod ||
+                      isGeneratingKey
+                    }
+                    onClick={handleGenerateRandomKey}
+                  >
+                    {isGeneratingKey ? (
+                      <IconLoader
+                        className="size-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <IconDice5 className="size-4" aria-hidden="true" />
+                    )}
+                    Random
+                  </Button>
+                </ButtonGroup>
+              </Field>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 gap-2 w-full mt-2">
+            <Button
+              className="col-span-3 w-full leading-none"
+              disabled={
+                state !== "idle" ||
+                !formState.file ||
+                !formState.encryptionMethod ||
+                !formState.encryptionKey
+              }
+              onClick={handleEncrypt}
+            >
+              {state === "processing" ? (
+                <>
+                  <IconLoader
+                    className="size-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                  Encrypting...
+                </>
+              ) : state === "done" ? (
+                <>
+                  <IconCheck className="size-4" aria-hidden="true" />
+                  Encrypted
+                </>
+              ) : state === "error" ? (
+                <>
+                  <IconX className="size-4" aria-hidden="true" />
+                  Failed
+                </>
+              ) : (
+                <>
+                  <IconLock className="size-4" aria-hidden="true" /> Encrypt
+                </>
+              )}
+            </Button>
+            <Button
+              className="col-span-2 w-full leading-none"
+              variant="destructive"
+              disabled={
+                state === "processing" ||
+                state === "done" ||
+                (formState.file === null &&
+                  !formState.encryptionMethod &&
+                  !formState.encryptionKey)
+              }
+              onClick={handleClear}
+            >
+              <IconReload className="size-4" aria-hidden="true" />
+              Reset
+            </Button>
           </div>
         </div>
 

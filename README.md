@@ -27,9 +27,9 @@
 | **Vigenère Cipher**       | Polyalphabetic         | ✅ Supported            | ✅ Supported              |
 | **Playfair Cipher (8x8)** | Alphanumeric           | ✅ Supported            | ❌ Unsupported            |
 | **Hill Cipher (2x2)**     | Numeric Matrix         | ✅ Supported            | ✅ Supported              |
-| **DES**                   | 8 bytes Hex            | ✅ Supported            | ❌ Unsupported            |
-| **AES-128**               | 16 bytes Hex           | ✅ Supported            | ⚠️ Impossible             |
-| **RC5**                   | 16 bytes Hex           | ✅ Supported            | ⚠️ Impossible             |
+| **DES**                   | 64 bit Hex             | ✅ Supported            | ❌ Unsupported            |
+| **AES**                   | 128/192/256 bit Hex    | ✅ Supported            | ⚠️ Impossible             |
+| **RC5**                   | 16/32/64 bit Hex       | ✅ Supported            | ⚠️ Impossible             |
 
 ## 🛠️ Tech Stack
 
